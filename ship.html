@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="ru"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Отправки · Family Market</title>
+<link rel="icon" href="icons/favicon-64.png">
+<meta name="theme-color" content="#1F5FA8" media="(prefers-color-scheme:light)">
+<meta name="theme-color" content="#0E141E" media="(prefers-color-scheme:dark)">
+<style>
+:root{--bg:#F5F7FA;--surface:#FFFFFF;--surface2:#EEF1F6;--ink:#161C26;--muted:#6B7688;--line:#E3E8F0;
+--accent:#1F5FA8;--good:#177A3A;--bad:#B3261E;--warn:#C87400;--chip:#EAF1FB;
+--shadow:0 1px 2px rgba(20,30,50,.06),0 4px 16px rgba(20,30,50,.05);}
+@media (prefers-color-scheme:dark){:root{--bg:#0E141E;--surface:#161F2C;--surface2:#1E2836;--ink:#E9EDF4;
+--muted:#93A0B4;--line:#26303F;--accent:#5FA0E6;--good:#49D17F;--bad:#F2867C;--warn:#E0A040;--chip:#1B2838;
+--shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);}}
+*{box-sizing:border-box}
+body{margin:0;overflow-x:hidden;background:var(--bg);color:var(--ink);
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;-webkit-text-size-adjust:100%;}
+.wrap{max-width:720px;margin:0 auto;padding:12px 12px 90px;}
+header{position:sticky;top:0;background:var(--bg);padding:10px 0 8px;z-index:9;}
+h1{font-size:22px;margin:2px 0 2px;}
+.sub{color:var(--muted);font-size:13px;}
+.back{display:inline-flex;align-items:center;gap:6px;border:0;background:none;color:var(--accent);
+font-size:14.5px;font-weight:600;padding:4px 0;cursor:pointer;}
+input,select,textarea{font-family:inherit;font-size:15px;padding:10px 11px;border-radius:11px;
+border:1px solid var(--line);background:var(--surface);color:var(--ink);width:100%;}
+textarea{min-height:60px;resize:vertical;}
+label{display:block;font-size:12px;color:var(--muted);margin:10px 0 4px;font-weight:600;}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:13px 14px;
+margin:10px 0;box-shadow:var(--shadow);}
+.big{width:100%;padding:13px;border-radius:13px;border:0;background:var(--accent);color:#fff;
+font-size:15.5px;font-weight:700;cursor:pointer;margin-top:12px;}
+.big.ghost{background:var(--surface2);color:var(--ink);}
+.big.warn{background:var(--warn);}
+.list .it{display:flex;gap:11px;align-items:center;padding:12px 13px;border-bottom:1px solid var(--line);cursor:pointer;}
+.list .it:last-child{border-bottom:0;}
+.list .it .ic{font-size:22px;flex:none;}
+.list .it .tx{flex:1;min-width:0;}
+.list .it .tx b{display:block;font-size:15px;}
+.list .it .tx span{font-size:12px;color:var(--muted);}
+.list .it .st{font-size:11px;font-weight:700;padding:3px 8px;border-radius:99px;flex:none;}
+.s-draft{background:var(--surface2);color:var(--muted);}
+.s-queued{background:#FFF0D6;color:#8A5A00;}
+.s-sent{background:#E3F1E6;color:#177A3A;}
+@media (prefers-color-scheme:dark){.s-queued{background:#3A2E17;color:#E0B640;}.s-sent{background:#17301F;color:#49D17F;}}
+.photos{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.photos .ph{position:relative;width:78px;height:78px;border-radius:10px;overflow:hidden;border:1px solid var(--line);}
+.photos .ph img{width:100%;height:100%;object-fit:cover;display:block;}
+.photos .ph button{position:absolute;top:2px;right:2px;border:0;border-radius:50%;width:20px;height:20px;
+background:rgba(0,0,0,.55);color:#fff;font-size:12px;line-height:1;cursor:pointer;padding:0;}
+.pos .photos .ph,.pos .addph{width:62px;height:62px;}
+.noph{width:52px;height:52px;border-radius:9px;background:var(--surface);border:1px dashed var(--line);
+display:flex;align-items:center;justify-content:center;font-size:20px;flex:none;}
+.addph{width:78px;height:78px;border-radius:10px;border:1.5px dashed var(--line);background:var(--surface2);
+color:var(--muted);font-size:22px;cursor:pointer;}
+.pos{border:1px solid var(--line);border-radius:12px;padding:11px;margin-top:10px;background:var(--surface2);}
+.pos .hd{display:flex;gap:10px;align-items:center;}
+.pos .hd img{width:52px;height:52px;border-radius:9px;object-fit:cover;flex:none;border:1px solid var(--line);}
+.pos .hd .t{flex:1;min-width:0;} .pos .hd .t b{display:block;font-size:14px;}
+.pos .hd .t span{font-size:11.5px;color:var(--muted);}
+.pos .hd .del{border:0;background:none;color:var(--bad);font-size:13px;cursor:pointer;flex:none;}
+.tot{display:flex;gap:8px;margin:10px 0 4px;}
+.tot div{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:9px 10px;
+box-shadow:var(--shadow);text-align:center;}
+.tot b{display:block;font-size:19px;font-weight:800;} .tot span{font-size:10.5px;color:var(--muted);
+text-transform:uppercase;letter-spacing:.4px;}
+.note{background:var(--surface2);border-radius:14px;padding:12px 13px;margin-top:14px;font-size:12.5px;
+line-height:1.55;color:var(--muted);}
+.hint{font-size:11.5px;color:var(--muted);margin-top:4px;}
+.gate{max-width:330px;margin:70px auto;text-align:center;color:var(--muted);font-size:14px;line-height:1.6;}
+.viewer{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:50;}
+.viewer img{max-width:96%;max-height:88%;}
+.viewer button{position:absolute;top:14px;right:14px;border:0;background:rgba(255,255,255,.15);color:#fff;
+border-radius:50%;width:38px;height:38px;font-size:18px;cursor:pointer;}
+.pend{position:fixed;left:0;right:0;bottom:0;background:var(--accent);color:#fff;font-size:12.5px;
+padding:9px 12px;text-align:center;font-weight:600;z-index:40;}
+.demo{background:var(--accent);color:#fff;font-size:12.5px;font-weight:600;padding:9px 12px;border-radius:12px;
+margin-top:8px;line-height:1.45;}.demo a{color:#fff;}
+.big.link{display:block;text-align:center;text-decoration:none;background:var(--good);}
+.s-up{background:#E6EEFA;color:#1F5FA8;}
+.s-late{background:#FDE2E0;color:#B3261E;}
+.s-disc{background:#FFE0B2;color:#8A4B00;}
+@media (prefers-color-scheme:dark){.s-up{background:#1B2A3D;color:#7FB4EE;}
+.s-late{background:#3A1F1E;color:#F2867C;}.s-disc{background:#3A2A17;color:#E0A040;}}
+</style></head><body>
+
+<div class="gate" id="gate" style="display:none">
+  Раздел отправок открывается из плашки закупа.<br>
+  <button class="big" style="margin-top:14px" onclick="location.href='buy.html'">Перейти в «Закуп»</button>
+</div>
+
+<div class="wrap" id="app" style="display:none">
+<header>
+  <button class="back" onclick="backBtn()">‹ Назад</button>
+  <h1 id="ttl">Отправки</h1>
+  <div class="sub" id="sub"></div>
+</header>
+<div id="body"></div>
+</div>
+
+<div class="viewer" id="viewer" onclick="closeView()"><button>✕</button><img id="viewimg"></div>
+<div class="pend" id="upbar" style="display:none"></div>
+
+<input type="file" id="cam" accept="image/*" capture="environment" style="display:none">
+<input type="file" id="gal" accept="image/*" multiple style="display:none">
+
+<script>
+/* ---------- хранилище: накладные с фото живут в телефоне (IndexedDB) ---------- */
+var DB=null, VIEW='list', CUR=null, PHOTOTARGET=null;
+var PHOTO_DAYS=30;     /* через сколько дней фото удаляются */
+var MAX_PH=5;          /* фото на накладную и на позицию */
+function itemPhotos(it){ return (it.photos&&it.photos.length)?it.photos:(it.photo?[it.photo]:[]); }
+function phCount(r){ return (r.photos||[]).length+(r.items||[]).reduce(function(n,i){return n+itemPhotos(i).length;},0); }
+var KEEP_DAYS=90;      /* через сколько дней удаляется выгруженная накладная целиком */
+var STORES=['Дом одежды','Дракон (Костанай)','Подарки (Петропавловск)','Поставщик','Склад'];
+var TO=['Дракон (Костанай)','Подарки (Петропавловск)','Дом одежды'];
+
+function open_db(){
+  return new Promise(function(res,rej){
+    var r=indexedDB.open('fm_ship',1);
+    r.onupgradeneeded=function(e){
+      var db=e.target.result;
+      if(!db.objectStoreNames.contains('ships')) db.createObjectStore('ships',{keyPath:'id'});
+    };
+    r.onsuccess=function(e){ DB=e.target.result; res(DB); };
+    r.onerror=function(){ rej(r.error); };
+  });
+}
+function tx(mode){ return DB.transaction('ships',mode).objectStore('ships'); }
+function put(rec){ return new Promise(function(res,rej){ var q=tx('readwrite').put(rec); q.onsuccess=function(){res(rec);}; q.onerror=function(){rej(q.error);}; }); }
+function all(){ return new Promise(function(res,rej){ var q=tx('readonly').getAll(); q.onsuccess=function(){res(q.result||[]);}; q.onerror=function(){rej(q.error);}; }); }
+function get(id){ return new Promise(function(res,rej){ var q=tx('readonly').get(id); q.onsuccess=function(){res(q.result);}; q.onerror=function(){rej(q.error);}; }); }
+function del(id){ return new Promise(function(res){ var q=tx('readwrite').delete(id); q.onsuccess=function(){res();}; }); }
+
+/* ---------- выгрузка в Google Таблицу ----------
+   Адрес приёмника и токен — в зашифрованном buy.json (тот же файл, что у плашки закупа):
+   расшифровываем паролем, под которым баер уже вошёл. Шлём по одной накладной и по одному фото
+   за запрос; что дошло, отмечаем в самой накладной, поэтому повтор продолжает с места обрыва. */
+var CFG={url:'',token:''}, UPLOADING=false, UPLOAD_ID='';
+function patchRec(id,fn){
+  return get(id).then(function(r){ if(!r) return null; fn(r); if(CUR&&CUR.id===id) fn(CUR); return put(r); });
+}
+function markDirty(){
+  if(!CUR) return;
+  CUR.ver=(CUR.ver||0)+1;
+  if(CUR.status==='sent'||CUR.status==='queued'){
+    /* поправили после отправки — уйдёт заново. Если фото в телефоне уже убраны уборкой,
+       старые снимки на Диске не трогаем: заменить их нечем */
+    CUR.needReset=!CUR.trimmed; CUR.uploaded={}; CUR.status='queued';
+  }
+}
+function b64bytes(t){ var x=atob(t),a=new Uint8Array(x.length); for(var i=0;i<x.length;i++) a[i]=x.charCodeAt(i); return a; }
+function loadCfg(){
+  return fetch('buy.json?v='+Date.now()).then(function(r){ return r.json(); }).then(function(j){
+    if(j.v!==2) return j;
+    var a=JSON.parse(localStorage.getItem('buy_auth')||'null');
+    if(!a) throw new Error('нет входа');
+    var enc=new TextEncoder();
+    return crypto.subtle.importKey('raw',enc.encode(String(a.l).trim().toLowerCase()+':'+a.p),'PBKDF2',false,['deriveKey'])
+      .then(function(k){ return crypto.subtle.deriveKey({name:'PBKDF2',salt:b64bytes(j.salt),iterations:120000,hash:'SHA-256'},
+                                                       k,{name:'AES-GCM',length:256},false,['decrypt']); })
+      .then(function(key){ return crypto.subtle.decrypt({name:'AES-GCM',iv:b64bytes(j.iv)},key,b64bytes(j.ct)); })
+      .then(function(buf){ return JSON.parse(new TextDecoder().decode(buf)); });
+  }).then(function(d){
+    CFG={url:d.url||'',token:d.token||''};
+    try{ localStorage.setItem('fm_ship_cfg',JSON.stringify(CFG)); }catch(e){}
+    return CFG;
+  }).catch(function(){
+    /* нет связи или сменили пароль — берём последний известный адрес */
+    try{ var c=JSON.parse(localStorage.getItem('fm_ship_cfg')||'null'); if(c&&c.url) CFG=c; }catch(e){}
+    return CFG;
+  });
+}
+function api(body){
+  /* Google под нагрузкой иногда отвечает страницей (404) вместо JSON — это временно, не ошибка данных.
+     Тайм-аут 90 с: без него запрос на слабой связи висит бесконечно и держит всю очередь. */
+  var ctl=(typeof AbortController!=='undefined')?new AbortController():null;
+  var timer=ctl?setTimeout(function(){ ctl.abort(); },90000):null;
+  return fetch(CFG.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
+                        body:JSON.stringify(body),signal:ctl?ctl.signal:undefined})
+    .then(function(r){ return r.text(); })
+    .then(function(t){
+      if(timer) clearTimeout(timer);
+      var res=null; try{ res=JSON.parse(t); }catch(e){}
+      if(!res) throw new Error('Google сейчас занят');
+      if(!res.ok) throw new Error(res.error||'приёмник не ответил');
+      return res;
+    },function(e){
+      if(timer) clearTimeout(timer);
+      throw (e&&e.name==='AbortError')?new Error('Google не ответил за 90 секунд'):e;
+    });
+}
+function apiRetry(body,tries){
+  tries=tries||3;
+  return api(body).catch(function(e){
+    var окончательно=/неверный токен|нет доступа|пустое фото|нет id/.test(e.message);
+    if(tries<=1||окончательно) throw e;
+    return new Promise(function(r){ setTimeout(r,5000); }).then(function(){ return apiRetry(body,tries-1); });
+  });
+}
+function pad2(n){ return (n<10?'0':'')+n; }
+function photoList(r){
+  var out=[];
+  (r.photos||[]).forEach(function(p,i){ out.push({name:'nakl_'+(i+1)+'.jpg',data:p}); });
+  (r.items||[]).forEach(function(it,k){
+    itemPhotos(it).forEach(function(p,j){ out.push({name:'poz_'+pad2(k+1)+'_'+(j+1)+'.jpg',data:p}); });
+  });
+  return out;
+}
+function showBar(t){ var el=document.getElementById('upbar'); if(!el) return; el.textContent=t||''; el.style.display=t?'':'none'; }
+function uploadQueue(){
+  if(UPLOADING||!CFG.url||!CFG.token) return Promise.resolve();
+  if(navigator.onLine===false) return Promise.resolve();
+  UPLOADING=true;
+  return all().then(function(rows){
+    var q=rows.filter(function(r){ return r.status==='queued'; })
+              .sort(function(a,b){ return (a.created||'').localeCompare(b.created||''); });
+    return q.reduce(function(pr,rec,i){ return pr.then(function(){ return uploadOne(rec.id,i+1,q.length); }); },
+                    Promise.resolve()).then(function(){ return q.length; });
+  }).then(function(n){
+    UPLOADING=false; UPLOAD_ID='';
+    if(n){ showBar('Выгружено в реестр ✓'); setTimeout(function(){ showBar(''); },2500); syncStatuses(true); }
+    обновитьЭкран();
+  }).catch(function(err){
+    UPLOADING=false; UPLOAD_ID='';
+    showBar('Не выгрузилось: '+((err&&err.message)||err)+'. Повторю, когда появится связь.');
+    обновитьЭкран();
+  });
+}
+/* ---------- что с накладной после отправки ----------
+   Реестр знает то, чего не знает телефон: сколько дней в пути, приняли ли груз и кто. Раз в минуту
+   (и после выгрузки) спрашиваем статусы своих отправленных накладных и показываем их в списке. */
+var SYNC_AT=0;
+function syncStatuses(force){
+  if(!CFG.url||!CFG.token||navigator.onLine===false) return Promise.resolve();
+  if(!force&&Date.now()-SYNC_AT<60000) return Promise.resolve();
+  SYNC_AT=Date.now();
+  return all().then(function(rows){
+    var ids=rows.filter(function(r){ return r.status==='sent'; }).map(function(r){ return r.id; });
+    if(!ids.length) return null;
+    return api({action:'ship_status',token:CFG.token,ids:ids}).then(function(res){
+      var its=res.items||{};
+      return Promise.all(ids.map(function(id){
+        return its[id]?patchRec(id,function(r){ r.remote=its[id]; }):null;
+      }));
+    }).then(function(){ if(VIEW==='list') render(); });
+  }).catch(function(){});
+}
+function бейджРеестра(rm){
+  rm=rm||{};
+  if(rm.status==='доставлено') return '<span class="st s-sent">доставлено</span>';
+  if(rm.status==='доставлено с расхождением') return '<span class="st s-disc">с расхождением</span>';
+  if(rm.status==='в пути') return '<span class="st '+(rm.late?'s-late':'s-queued')+'">в пути'+(rm.days?' '+esc(rm.days):'')+'</span>';
+  return '<span class="st s-sent">в реестре</span>';
+}
+function обновитьЭкран(){
+  if(VIEW==='list'){ render(); return; }
+  var a=document.activeElement;
+  if(CUR && !(a && /INPUT|TEXTAREA|SELECT/.test(a.tagName))) render();   /* не мешаем печатать */
+}
+function uploadOne(id,n,total){
+  var tag='Накладная '+n+' из '+total+': ', ver0=0, reset=false;
+  UPLOAD_ID=id;
+  if(VIEW==='list') render();
+  return get(id).then(function(rec){
+    if(!rec||rec.status!=='queued') return null;
+    ver0=rec.ver||0; reset=!!rec.needReset;
+    var head={id:rec.id,date:rec.date,from:rec.from,to:rec.to,places:rec.places,who:rec.who,note:rec.note,
+              shipPhotos:(rec.photos||[]).length,
+              itemPhotos:(rec.items||[]).reduce(function(t,i){ return t+itemPhotos(i).length; },0),
+              items:(rec.items||[]).map(function(i){ return {art:i.art,sizes:i.sizes,packs:i.packs,perPack:i.perPack,
+                                                             qty:i.qty,photos:itemPhotos(i).length}; })};
+    showBar(tag+'шапка и состав…');
+    return apiRetry({action:'ship_begin',token:CFG.token,ship:head,reset:reset}).then(function(res){
+      return patchRec(id,function(r){
+        if(reset) r.uploaded={};
+        if((r.ver||0)===ver0) r.needReset=false;
+        r.viewUrl=res.viewUrl; r.folderUrl=res.folder;
+      });
+    }).then(function(){ return get(id); }).then(function(r){
+      var фото=photoList(r), up=r.uploaded||{};
+      var todo=фото.filter(function(f){ return !up[f.name]; }), готово=фото.length-todo.length;
+      return todo.reduce(function(pr,f){ return pr.then(function(){
+        готово++; showBar(tag+'фото '+готово+' из '+фото.length+'…');
+        return apiRetry({action:'ship_photo',token:CFG.token,shipId:id,name:f.name,
+                    data:String(f.data).replace(/^data:image\/[a-z]+;base64,/,'')})
+          .then(function(){ return patchRec(id,function(x){ x.uploaded=x.uploaded||{}; x.uploaded[f.name]=true; }); });
+      }); },Promise.resolve());
+    }).then(function(){
+      showBar(tag+'завершаю…');
+      return apiRetry({action:'ship_finish',token:CFG.token,shipId:id});
+    }).then(function(res){
+      return patchRec(id,function(r){
+        if((r.ver||0)!==ver0) return;          /* правили во время выгрузки — уйдёт ещё раз */
+        r.status='sent'; r.sentAt=new Date().toISOString(); r.viewUrl=res.viewUrl||r.viewUrl;
+      });
+    });
+  });
+}
+
+/* ---------- уборка: фото тяжёлые, данные лёгкие ---------- */
+function ageDays(rec){
+  var t=Date.parse(rec.created||'')||0;
+  if(!t) return 0;
+  return Math.floor((Date.now()-t)/86400000);
+}
+function housekeeping(){
+  return all().then(function(rows){
+    var чистка=[], удаление=[];
+    rows.forEach(function(r){
+      var d=ageDays(r);
+      if(d>KEEP_DAYS && r.status==='sent'){ удаление.push(r.id); return; }
+      if(d>PHOTO_DAYS && !r.trimmed && r.status==='sent'){
+        var было=phCount(r);
+        if(было){
+          r.photos=[];
+          (r.items||[]).forEach(function(i){ i.photo=''; i.photos=[]; });
+          r.trimmed=было;                     /* помним, сколько снимков было */
+          чистка.push(put(r));
+        }
+      }
+    });
+    return Promise.all(чистка.concat(удаление.map(del))).then(function(){
+      return {фото:чистка.length, удалено:удаление.length};
+    });
+  });
+}
+function место(){
+  if(!navigator.storage||!navigator.storage.estimate) return Promise.resolve(null);
+  return navigator.storage.estimate().then(function(e){ return e.usage||0; }).catch(function(){ return null; });
+}
+function мб(b){ return (b/1048576).toFixed(1).replace('.',',')+' МБ'; }
+function чиститьСейчас(){
+  if(!confirm('Убрать из телефона фото выгруженных накладных старше '+PHOTO_DAYS+' дней? На Google Диске они останутся.')) return;
+  all().then(function(rows){
+    var ops=[];
+    rows.forEach(function(r){
+      if(ageDays(r)>PHOTO_DAYS && (phCount(r)>0) && r.status==='sent'){
+        var было=phCount(r);
+        r.photos=[]; (r.items||[]).forEach(function(i){ i.photo=''; i.photos=[]; }); r.trimmed=было;
+        ops.push(put(r));
+      }
+    });
+    Promise.all(ops).then(function(){ go('list'); });
+  });
+}
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function today(){ var d=new Date(); return d.toISOString().slice(0,10); }
+function ru(d){ if(!d) return ''; var p=String(d).split('-'); return p.length===3?(p[2]+'.'+p[1]+'.'+p[0]):d; }
+function who(){ try{ return localStorage.getItem('fm_ship_who')||''; }catch(e){ return ''; } }
+
+/* фото с камеры: ужимаем до 1280 px, иначе телефон забьётся за неделю */
+function shrink(file){
+  return new Promise(function(res){
+    var fr=new FileReader();
+    fr.onload=function(){
+      var img=new Image();
+      img.onload=function(){
+        var m=1280, w=img.width, h=img.height;
+        if(w>m||h>m){ if(w>h){ h=Math.round(h*m/w); w=m; } else { w=Math.round(w*m/h); h=m; } }
+        var c=document.createElement('canvas'); c.width=w; c.height=h;
+        c.getContext('2d').drawImage(img,0,0,w,h);
+        res(c.toDataURL('image/jpeg',0.72));
+      };
+      img.src=fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+/* снимки: камера (cam) или галерея (gal, можно сразу несколько); больше MAX_PH не берём */
+function addFiles(files){
+  if(!files.length||!PHOTOTARGET||!CUR) return;
+  collect();
+  var tgt=PHOTOTARGET;
+  function arr(){
+    if(tgt.kind==='ship') return CUR.photos||(CUR.photos=[]);
+    var it=CUR.items[tgt.idx];
+    if(!it.photos||!it.photos.length) it.photos=it.photo?[it.photo]:[];
+    return it.photos;
+  }
+  var свободно=MAX_PH-arr().length;
+  if(свободно<=0){ alert('Уже '+MAX_PH+' фото. Удалите лишнее, чтобы добавить новое.'); return; }
+  var взять=files.slice(0,свободно), лишних=files.length-взять.length;
+  взять.reduce(function(p,f){ return p.then(function(){ return shrink(f).then(function(d){ arr().push(d); }); }); },
+               Promise.resolve())
+  .then(function(){ if(tgt.kind!=='ship'){ var it=CUR.items[tgt.idx]; it.photo=it.photos[0]||''; } markDirty(); return put(CUR); })
+  .then(function(){
+    render();
+    if(лишних>0) alert('Добавлено '+взять.length+' фото: на '+(tgt.kind==='ship'?'накладную':'позицию')+
+                       ' помещается не больше '+MAX_PH+'.');
+  });
+}
+['cam','gal'].forEach(function(id){
+  document.getElementById(id).addEventListener('change',function(e){
+    var fs=Array.prototype.slice.call(e.target.files||[]);
+    e.target.value='';
+    addFiles(fs);
+  });
+});
+function shoot(kind,idx){ PHOTOTARGET={kind:kind,idx:idx}; document.getElementById('cam').click(); }
+function pick(kind,idx){ PHOTOTARGET={kind:kind,idx:idx}; document.getElementById('gal').click(); }
+function кнопкиФото(kind,idx,сколько){
+  if(сколько>=MAX_PH) return '';
+  var a=(idx===undefined)?('&quot;'+kind+'&quot;'):('&quot;'+kind+'&quot;,'+idx);
+  return '<button class="addph" title="Снять" onclick="shoot('+a+')">📷</button>'+
+         '<button class="addph" title="Из галереи" onclick="pick('+a+')">📎</button>';
+}
+function backBtn(){
+  if(VIEW==='edit'&&CUR){ collect(); put(CUR).then(function(){ go('list'); }); return; }
+  if(history.length>1&&document.referrer.indexOf(location.host)>=0){ history.back(); }
+  else { location.href='buy.html'; }
+}
+
+function go(v,id){
+  VIEW=v;
+  if(v==='list'){ CUR=null; render(); return; }
+  if(id){ get(id).then(function(r){ CUR=r; render(); }); }
+  else render();
+}
+function view(src){ document.getElementById('viewimg').src=src; document.getElementById('viewer').style.display='flex'; }
+function closeView(){ document.getElementById('viewer').style.display='none'; }
+
+/* ---------- экраны ---------- */
+function render(){
+  var b=document.getElementById('body');
+  if(VIEW==='list') return renderList(b);
+  if(VIEW==='edit') return renderEdit(b);
+}
+
+function renderList(b){
+  document.getElementById('ttl').textContent='Отправки';
+  document.querySelector('.back').style.display='';
+  all().then(function(rows){
+    rows.sort(function(a,c){ return (c.created||'').localeCompare(a.created||''); });
+    var мест=rows.reduce(function(s,r){return s+(+r.places||0);},0);
+    var поз=rows.reduce(function(s,r){return s+(r.items||[]).length;},0);
+    document.getElementById('sub').textContent=CFG.url?'накладные уходят в реестр Google Таблицы'
+                                                      :'таблица не подключена · накладные копятся в телефоне';
+    b.innerHTML=
+      '<div class="tot"><div><b>'+rows.length+'</b><span>накладных</span></div>'+
+      '<div><b>'+мест+'</b><span>мест</span></div>'+
+      '<div><b>'+поз+'</b><span>позиций</span></div></div>'+
+      '<button class="big" onclick="newShip()">+ Новая отправка</button>'+
+      (rows.length?('<div class="card list" style="padding:0">'+rows.map(function(r){
+        var st=r.status==='sent'?бейджРеестра(r.remote)
+              :(r.status==='queued'&&UPLOAD_ID===r.id)?'<span class="st s-up">выгружается…</span>'
+              :(r.status==='queued'?'<span class="st s-queued">ждёт отправки</span>'
+              :'<span class="st s-draft">черновик</span>');
+        return '<div class="it" onclick="go(&quot;edit&quot;,&quot;'+r.id+'&quot;)">'+
+          '<div class="ic">'+((r.photos&&r.photos.length)?'📄':(r.trimmed?'🗄️':'📦'))+'</div>'+
+          '<div class="tx"><b>'+esc(r.from||'—')+' → '+esc(r.to||'—')+'</b>'+
+          '<span>'+ru(r.date)+' · мест '+(r.places||0)+' · позиций '+((r.items||[]).length)+
+          (r.who?(' · '+esc(r.who)):'')+
+          (r.trimmed?(' · фото очищены ('+r.trimmed+')'):'')+'</span></div>'+st+'</div>';
+      }).join('')+'</div>')
+      :'<div class="note">Пока ни одной накладной. Нажмите «Новая отправка», сфотографируйте накладную '+
+       'и добавьте позиции — что и в каком количестве едет.</div>')+
+      '<div class="note" id="mem">место в телефоне…</div>'+
+      '<div class="note">'+(CFG.url
+        ?'<b>Реестр подключён.</b> После «Отправить в реестр» накладная уходит в Google Таблицу сама: строка '+
+         'в реестре, состав и фото на Диске, ссылка для приёмщика. Нет связи — выгрузится, когда появится.'
+        :'<b>Таблица ещё не подключена.</b> Накладные сохраняются в телефоне со статусом «ждёт отправки» '+
+         'и уйдут в реестр сами, как только подключим.')+'</div>';
+    место().then(function(u){
+      var старых=rows.filter(function(r){ return ageDays(r)>PHOTO_DAYS &&
+        (phCount(r)>0) && r.status==='sent'; }).length;
+      var el=document.getElementById('mem'); if(!el) return;
+      el.innerHTML='<b>Память.</b> '+(u!==null?('занято '+мб(u)+'. '):'')+
+        'Фото выгруженных накладных старше '+PHOTO_DAYS+' дней убираются из телефона сами — на Google Диске они '+
+        'остаются. Выгруженные накладные старше '+KEEP_DAYS+' дней убираются из телефона целиком. '+
+        'Черновики и невыгруженное не трогаем.'+
+        (старых?('<br><button class="big ghost" style="margin-top:9px" onclick="чиститьСейчас()">'+
+                 'Очистить фото сейчас ('+старых+' накл.)</button>'):'');
+    });
+  });
+}
+
+function newShip(){
+  var rec={id:'sh_'+Date.now(), created:new Date().toISOString(), date:today(),
+           from:'Дом одежды', to:TO[0], places:1, who:who(), note:'',
+           photos:[], items:[], status:'draft'};
+  put(rec).then(function(){ CUR=rec; VIEW='edit'; render(); });
+}
+
+function renderEdit(b){
+  var r=CUR;
+  document.getElementById('ttl').textContent='Накладная';
+  document.querySelector('.back').style.display='';
+  document.getElementById('sub').textContent=ru(r.date)+' · '+(r.status==='sent'?'в реестре':(r.status==='queued'?'ждёт отправки':'черновик'));
+  var опции=function(arr,val){ return arr.map(function(x){ return '<option'+(x===val?' selected':'')+'>'+esc(x)+'</option>'; }).join(''); };
+  var шт=(r.items||[]).reduce(function(s,i){ return s+(+i.qty||0); },0);
+  b.innerHTML=
+  '<div class="card">'+
+    '<div class="row">'+
+      '<div><label>Откуда</label><select id="f_from">'+опции(STORES,r.from)+'</select></div>'+
+      '<div><label>Куда</label><select id="f_to">'+опции(TO,r.to)+'</select></div>'+
+    '</div>'+
+    '<div class="row">'+
+      '<div><label>Дата отправки</label><input type="date" id="f_date" value="'+esc(r.date)+'"></div>'+
+      '<div><label>Сколько мест</label><input type="number" inputmode="numeric" id="f_places" value="'+(r.places||1)+'"></div>'+
+    '</div>'+
+    '<label>Кто отправил</label><input type="text" id="f_who" value="'+esc(r.who||'')+'" placeholder="имя">'+
+    '<label>Комментарий</label><textarea id="f_note" placeholder="например: 2 мешка + коробка">'+esc(r.note||'')+'</textarea>'+
+    '<label>Фото накладной · '+(r.photos||[]).length+' из '+MAX_PH+'</label>'+
+    '<div class="photos">'+
+      (r.photos||[]).map(function(p,i){ return '<div class="ph"><img src="'+p+'">'+
+        '<button onclick="delPhoto('+i+')">✕</button></div>'; }).join('')+
+      кнопкиФото('ship',undefined,(r.photos||[]).length)+
+    '</div>'+
+    '<div class="hint">'+(r.trimmed
+      ? ('Фото удалены автоматически: накладной больше '+PHOTO_DAYS+' дней (было снимков: '+r.trimmed+').')
+      : 'Снимите накладную целиком, чтобы приёмщик мог сверить.')+'</div>'+
+  '</div>'+
+
+  '<div class="card">'+
+    '<b style="font-size:15px">Что внутри</b>'+
+    '<div class="hint">Позиций: '+((r.items||[]).length)+' · штук: '+шт+'</div>'+
+    (r.items||[]).map(function(it,i){
+      return '<div class="pos"><div class="hd">'+
+        (itemPhotos(it).length?('<img src="'+itemPhotos(it)[0]+'" onclick="viewItem('+i+')">')
+                              :'<div class="noph">📦</div>')+
+        '<div class="t"><b>'+esc(it.art||'без артикула')+'</b>'+
+        '<span>'+(+it.packs||0)+' уп. × '+(+it.perPack||0)+' шт = <b>'+(+it.qty||0)+'</b> шт'+
+        (it.sizes?(' · '+esc(it.sizes)):'')+'</span></div>'+
+        '<button class="del" onclick="delItem('+i+')">удалить</button></div>'+
+        '<div class="photos">'+
+          itemPhotos(it).map(function(p,j){ return '<div class="ph"><img src="'+p+'">'+
+            '<button onclick="delItemPhoto('+i+','+j+')">✕</button></div>'; }).join('')+
+          кнопкиФото('item',i,itemPhotos(it).length)+
+        '</div>'+
+        '<div class="hint">фото товара · '+itemPhotos(it).length+' из '+MAX_PH+'</div>'+
+        '<div class="row" style="margin-top:9px">'+
+          '<div><label>Артикул</label><input type="text" value="'+esc(it.art||'')+'" oninput="setItem('+i+',&quot;art&quot;,this.value)"></div>'+
+          '<div><label>Размерная сетка</label><input type="text" value="'+esc(it.sizes||'')+'" placeholder="напр. M-2XL" oninput="setItem('+i+',&quot;sizes&quot;,this.value)"></div>'+
+        '</div>'+
+        '<div class="row">'+
+          '<div><label>Упаковок</label><input type="number" inputmode="numeric" value="'+(+it.packs||0)+'" oninput="setItem('+i+',&quot;packs&quot;,this.value)"></div>'+
+          '<div><label>В упаковке, шт</label><input type="number" inputmode="numeric" value="'+(+it.perPack||0)+'" oninput="setItem('+i+',&quot;perPack&quot;,this.value)"></div>'+
+        '</div>'+
+      '</div>';
+    }).join('')+
+    '<button class="big ghost" onclick="addItem()">+ Добавить позицию (фото товара)</button>'+
+  '</div>'+
+
+  (r.status==='sent'&&r.remote?'<div class="note">'+
+    (r.remote.status&&r.remote.status.indexOf('доставлено')===0
+      ?'<b>'+esc(r.remote.status)+' '+esc(r.remote.days||'')+'.</b> Принял: '+esc(r.remote.got||'—')+
+       (r.remote.gotAt?', '+esc(r.remote.gotAt):'')+(r.remote.disc?'<br>Расхождения: '+esc(r.remote.disc):'')
+      :'<b>В пути '+esc(r.remote.days||'')+'.</b> '+(r.remote.late?'Больше 7 дней — поставка застряла, проверьте.':'Получатель ещё не отметил приёмку.'))+
+    '</div>':'')+
+  (r.status==='sent'&&r.viewUrl?'<a class="big link" href="'+esc(r.viewUrl)+'" target="_blank">📄 Открыть в реестре</a>':'')+
+  '<button class="big" onclick="saveShip()">Сохранить</button>'+
+  (r.status==='sent'?'':'<button class="big warn" onclick="sendShip()">'+
+    (r.status==='queued'?'Выгрузить сейчас':'Отправить в реестр')+'</button>')+
+  '<button class="big ghost" onclick="dropShip()">Удалить накладную</button>';
+
+  // клики по фото накладной — открываем крупно
+  var imgs=b.querySelectorAll('.photos .ph img');
+  for(var i=0;i<imgs.length;i++){
+    (function(el){ el.onclick=function(){ view(el.src); }; })(imgs[i]);
+  }
+}
+function viewItem(i){ var a=itemPhotos(CUR.items[i]); if(a.length) view(a[0]); }
+function delItemPhoto(i,j){
+  collect();
+  var a=itemPhotos(CUR.items[i]).slice(); a.splice(j,1);
+  CUR.items[i].photos=a; CUR.items[i].photo=a[0]||''; markDirty();
+  put(CUR).then(render);
+}
+
+function collect(){
+  if(!CUR||!document.getElementById('f_from')) return;   /* поля есть только на экране накладной */
+  var g=function(id){ return document.getElementById(id).value; };
+  var nv={from:g('f_from'),to:g('f_to'),date:g('f_date'),places:+g('f_places')||0,who:g('f_who'),note:g('f_note')};
+  var поменяли=Object.keys(nv).some(function(k){ return String(CUR[k]==null?'':CUR[k])!==String(nv[k]); });
+  Object.keys(nv).forEach(function(k){ CUR[k]=nv[k]; });
+  if(поменяли) markDirty();
+  try{ localStorage.setItem('fm_ship_who',CUR.who||''); }catch(e){}
+}
+function setItem(i,k,v){
+  CUR.items[i][k]= (k==='packs'||k==='perPack') ? (+v||0) : v;
+  CUR.items[i].qty=(+CUR.items[i].packs||0)*(+CUR.items[i].perPack||0);
+  markDirty();
+  put(CUR);
+  var hd=document.querySelectorAll('.pos')[i];
+  if(hd){ var sp=hd.querySelector('.t span');
+    if(sp) sp.innerHTML=(+CUR.items[i].packs||0)+' уп. × '+(+CUR.items[i].perPack||0)+' шт = <b>'+
+      (+CUR.items[i].qty||0)+'</b> шт'+(CUR.items[i].sizes?(' · '+esc(CUR.items[i].sizes)):'');
+  }
+}
+function addItem(){
+  collect();
+  CUR.items.push({art:'',sizes:'',packs:1,perPack:1,qty:1,photo:'',photos:[]}); markDirty();
+  put(CUR).then(function(){ render(); setTimeout(function(){ shoot('item',CUR.items.length-1); },250); });
+}
+function delItem(i){ collect(); CUR.items.splice(i,1); markDirty(); put(CUR).then(render); }
+function delPhoto(i){ collect(); CUR.photos.splice(i,1); markDirty(); put(CUR).then(render); }
+function saveShip(){ collect(); put(CUR).then(function(){ go('list'); }); }
+function dropShip(){
+  if(!confirm('Удалить накладную вместе с фото?')) return;
+  del(CUR.id).then(function(){ go('list'); });
+}
+function sendShip(){
+  collect();
+  if(!CUR.photos.length && !CUR.items.length){ alert('Добавьте фото накладной или хотя бы одну позицию'); return; }
+  CUR.status='queued';
+  put(CUR).then(function(){
+    go('list');
+    if(CFG.url){ uploadQueue(); }
+    else alert('Накладная сохранена со статусом «ждёт отправки».\n\nGoogle Таблица ещё не подключена — '+
+               'как только подключим, накладная уйдёт в реестр сама.');
+  });
+}
+
+/* ---------- пример интерфейса: ship.html?demo=1 ----------
+   Экраны на ненастоящих накладных: всё живёт в памяти страницы, в телефон и в таблицу ничего не пишется. */
+var DEMO=/[?&]demo=1/.test(location.search), ДЕМО_ЖМИ=false;
+if(DEMO){
+  var демоФото=function(icon,label,c1,c2){
+    return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="600" height="700">'+
+      '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+c1+'"/><stop offset="1" stop-color="'+c2+'"/></linearGradient></defs>'+
+      '<rect width="600" height="700" fill="url(#g)"/><text x="300" y="340" font-size="160" text-anchor="middle">'+icon+'</text>'+
+      '<text x="300" y="470" font-size="40" font-family="Arial" fill="#333" text-anchor="middle">'+label+'</text></svg>');
+  };
+  var НК=демоФото('📄','накладная','#F3F0E6','#DCD6C4'), ТВ=демоФото('🧥','фото товара','#E4ECF7','#BFD0E8'),
+      ТВ2=демоФото('👟','фото товара','#E7F3EA','#C3E2CB');
+  var дн=function(n){ return new Date(Date.now()-n*86400000).toISOString().slice(0,10); };
+  var ок=function(n){ var d=new Date(Date.now()-n*86400000); return ru(d.toISOString().slice(0,10))+' 11:40'; };
+  var ROWS=[
+    {id:'d0',date:дн(0),from:'Дом одежды',to:'Дракон (Костанай)',places:1,who:'Лена',note:'',photos:[],
+     items:[{art:'Кофта 118',sizes:'ST',packs:1,perPack:12,qty:12,photos:[]}],status:'draft'},
+    {id:'d1',date:дн(0),from:'Поставщик',to:'Подарки (Петропавловск)',places:2,who:'Бахыт',note:'',photos:[НК],
+     items:[{art:'Кроссовки 5530',sizes:'36-41',packs:2,perPack:6,qty:12,photos:[ТВ2]}],status:'queued'},
+    {id:'d2',date:дн(3),from:'Дом одежды',to:'Подарки (Петропавловск)',places:3,who:'Лена',note:'куртки сверху, хрупкое внизу',
+     photos:[НК,НК],items:[{art:'466-чёрная',sizes:'S-M-L-XL',packs:2,perPack:4,qty:8,photos:[ТВ,ТВ]},
+       {art:'Ветровка 2217',sizes:'42-44-46-48-50',packs:3,perPack:5,qty:15,photos:[ТВ]}],
+     status:'sent',viewUrl:'nakl_demo.html',remote:{status:'в пути',days:'3 дня',late:false}},
+    {id:'d3',date:дн(9),from:'Дом одежды',to:'Дракон (Костанай)',places:5,who:'Лена',note:'зимние куртки',photos:[НК],
+     items:[{art:'Пуховик 901',sizes:'44-46-48-50',packs:4,perPack:4,qty:16,photos:[ТВ]}],
+     status:'sent',viewUrl:'nakl_demo.html',remote:{status:'в пути',days:'9 дней',late:true}},
+    {id:'d4',date:дн(4),from:'Поставщик',to:'Дракон (Костанай)',places:2,who:'Бахыт',note:'',photos:[НК],
+     items:[{art:'Джинсы 3310',sizes:'28-30-32-34',packs:3,perPack:4,qty:12,photos:[ТВ]}],
+     status:'sent',viewUrl:'nakl_demo.html',remote:{status:'доставлено',days:'за 2 дня',got:'Айгуль',gotAt:ок(2)}},
+    {id:'d5',date:дн(6),from:'Дом одежды',to:'Подарки (Петропавловск)',places:4,who:'Лена',note:'',photos:[НК],
+     items:[{art:'466-чёрная',sizes:'S-M-L-XL',packs:3,perPack:4,qty:12,photos:[ТВ]}],
+     status:'sent',viewUrl:'nakl_demo.html',remote:{status:'доставлено с расхождением',days:'за 3 дня',got:'Марат',
+       gotAt:ок(3),disc:'не хватает 1 упаковки артикула 466'}}
+  ];
+  ROWS.forEach(function(r,i){ r.created=new Date(Date.now()-i*60000).toISOString(); });
+  var копия=function(r){ return r?JSON.parse(JSON.stringify(r)):r; };
+  open_db=function(){ return Promise.resolve(); };
+  all=function(){ return Promise.resolve(ROWS.map(копия)); };
+  get=function(id){ return Promise.resolve(копия(ROWS.filter(function(r){ return r.id===id; })[0])); };
+  put=function(rec){
+    var k=-1; ROWS.forEach(function(r,i){ if(r.id===rec.id) k=i; });
+    if(k<0) ROWS.push(копия(rec)); else ROWS[k]=копия(rec);
+    return Promise.resolve(rec);
+  };
+  del=function(id){ ROWS=ROWS.filter(function(r){ return r.id!==id; }); return Promise.resolve(); };
+  housekeeping=function(){ return Promise.resolve(); };
+  место=function(){ return Promise.resolve(null); };
+  loadCfg=function(){ CFG={url:'demo',token:''}; return Promise.resolve(CFG); };
+  syncStatuses=function(){ return Promise.resolve(); };
+  /* «выгрузка» только по кнопке: накладная «ждёт отправки» в примере так и ждёт, пока её не отправят */
+  var sendReal=sendShip;
+  sendShip=function(){ ДЕМО_ЖМИ=true; sendReal(); };
+  uploadQueue=function(){
+    if(!ДЕМО_ЖМИ||UPLOADING) return Promise.resolve();
+    ДЕМО_ЖМИ=false;
+    var q=ROWS.filter(function(r){ return r.status==='queued'; });
+    if(!q.length) return Promise.resolve();
+    UPLOADING=true; UPLOAD_ID=q[0].id; showBar('Выгружаю в реестр… (пример)');
+    if(VIEW==='list') render();
+    return new Promise(function(res){ setTimeout(function(){
+      q.forEach(function(r){ r.status='sent'; r.viewUrl='nakl_demo.html'; r.remote={status:'в пути',days:'сегодня',late:false}; });
+      UPLOADING=false; UPLOAD_ID='';
+      showBar('Выгружено в реестр ✓ (пример)'); setTimeout(function(){ showBar(''); },2200);
+      if(VIEW==='list') render();
+      res();
+    },1800); });
+  };
+}
+
+/* доступ — тот же, что в плашке закупа */
+var авторизован=false;
+try{ авторизован=!!localStorage.getItem('buy_auth'); }catch(e){}
+if(!авторизован&&!DEMO){
+  document.getElementById('gate').style.display='';
+} else {
+  document.getElementById('app').style.display='';
+  if(DEMO) document.getElementById('app').insertAdjacentHTML('afterbegin','<div class="demo">👀 Пример интерфейса: накладные '+
+    'ненастоящие, в телефон и в таблицу ничего не сохраняется. <a href="ship.html">Выйти из примера</a></div>');
+  open_db().then(housekeeping).then(function(){ go('list'); return loadCfg(); }).then(function(){
+    if(VIEW==='list') render();
+    uploadQueue().then(function(){ return syncStatuses(true); });
+  }).catch(function(){
+    document.getElementById('body').innerHTML='<div class="note">Телефон не даёт сохранять накладные '+
+    '(закрытый режим браузера?). Откройте страницу в обычном окне.</div>';
+  });
+  window.addEventListener('online',function(){ uploadQueue(); });
+  setInterval(function(){ if(document.visibilityState==='visible'){ uploadQueue(); syncStatuses(); } },60000);
+}
+</script></body></html>

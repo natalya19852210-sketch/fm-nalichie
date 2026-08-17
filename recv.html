@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="ru"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Приёмка · Family Market</title>
+<link rel="icon" href="icons/favicon-64.png">
+<meta name="theme-color" content="#1F5FA8" media="(prefers-color-scheme:light)">
+<meta name="theme-color" content="#0E141E" media="(prefers-color-scheme:dark)">
+<style>
+:root{--bg:#F5F7FA;--surface:#FFFFFF;--surface2:#EEF1F6;--ink:#161C26;--muted:#6B7688;--line:#E3E8F0;
+--accent:#1F5FA8;--good:#177A3A;--bad:#B3261E;--warn:#C87400;
+--shadow:0 1px 2px rgba(20,30,50,.06),0 4px 16px rgba(20,30,50,.05);}
+@media (prefers-color-scheme:dark){:root{--bg:#0E141E;--surface:#161F2C;--surface2:#1E2836;--ink:#E9EDF4;
+--muted:#93A0B4;--line:#26303F;--accent:#5FA0E6;--good:#49D17F;--bad:#F2867C;--warn:#E0A040;
+--shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);}}
+*{box-sizing:border-box}
+body{margin:0;overflow-x:hidden;background:var(--bg);color:var(--ink);
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;-webkit-text-size-adjust:100%;}
+.wrap{max-width:720px;margin:0 auto;padding:12px 12px 60px;}
+header{position:sticky;top:0;background:var(--bg);padding:10px 0 8px;z-index:9;}
+.back{display:inline-flex;align-items:center;gap:6px;border:0;background:none;color:var(--accent);
+font-size:14.5px;font-weight:600;padding:4px 0;cursor:pointer;}
+h1{font-size:22px;margin:2px 0 2px;}
+.sub{color:var(--muted);font-size:13px;}
+.pick{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0 4px;}
+.pick button{flex:1;min-width:92px;padding:9px 6px;border-radius:11px;border:1px solid var(--line);
+background:var(--surface);color:var(--ink);font-size:13.5px;font-weight:600;cursor:pointer;}
+.pick button.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:13px 14px;
+margin:10px 0;box-shadow:var(--shadow);}
+.card.late{border:2px solid var(--bad);}
+.top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;}
+.top b{font-size:16px;line-height:1.3;}
+.st{flex:none;font-size:12px;font-weight:700;padding:4px 10px;border-radius:99px;white-space:nowrap;}
+.st.way{background:#FFF0D6;color:#8A5A00}.st.late{background:#FDE2E0;color:#B3261E}
+.st.ok{background:#E3F1E6;color:#177A3A}.st.disc{background:#FFE0B2;color:#8A4B00}
+@media (prefers-color-scheme:dark){.st.way{background:#3A2E17;color:#E0B640}.st.late{background:#3A1F1E;color:#F2867C}
+.st.ok{background:#17301F;color:#49D17F}.st.disc{background:#3A2A17;color:#E0A040}}
+.meta{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.5;}
+.meta b{color:var(--ink);}
+.btn{display:block;width:100%;text-align:center;text-decoration:none;margin-top:10px;padding:11px;border-radius:12px;
+border:0;font-size:14.5px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn.ghost{background:var(--surface2);color:var(--ink);}
+.btn.ok{background:var(--good);color:#fff;}
+.btn.go{background:var(--accent);color:#fff;}
+.btn:disabled{opacity:.6;}
+label{display:block;font-size:12px;color:var(--muted);margin:10px 0 4px;font-weight:600;}
+input,textarea{font-family:inherit;font-size:15px;padding:10px 11px;border-radius:11px;
+border:1px solid var(--line);background:var(--surface);color:var(--ink);width:100%;}
+textarea{min-height:58px;resize:vertical;}
+.msg{font-size:13px;margin-top:8px;color:var(--bad);}
+.note{background:var(--surface2);border-radius:14px;padding:12px 13px;margin-top:14px;font-size:12.5px;
+line-height:1.55;color:var(--muted);}
+.empty{padding:26px 10px;text-align:center;color:var(--muted);font-size:14px;line-height:1.6;}
+.empty a{color:var(--accent);font-weight:700;}
+.refresh{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;
+padding:6px 13px;font-size:13px;font-weight:700;cursor:pointer;}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.gate{max-width:330px;margin:70px auto;text-align:center;color:var(--muted);font-size:14px;line-height:1.6;padding:0 12px;}
+.demo{background:var(--accent);color:#fff;font-size:12.5px;font-weight:600;padding:9px 12px;border-radius:12px;
+margin-top:8px;line-height:1.45;}
+.demo a{color:#fff;}
+</style></head><body>
+
+<div class="gate" id="gate" style="display:none">
+  Приёмка открывается из плашки «Закуп» — по логину и паролю.<br>
+  <button class="btn go" style="margin-top:14px" onclick="location.href='buy.html'">Перейти в «Закуп»</button>
+</div>
+
+<div class="wrap" id="app" style="display:none">
+<div class="demo" id="demo" style="display:none">👀 Пример интерфейса: поставки ненастоящие, в таблицу ничего
+  не уходит. <a href="recv.html">Выйти из примера</a></div>
+<header>
+  <div class="row">
+    <button class="back" onclick="if(history.length>1&&document.referrer.indexOf(location.host)>=0){history.back()}else{location.href='buy.html'}">‹ Назад</button>
+    <button class="refresh" onclick="load()">↻ обновить</button>
+  </div>
+  <h1>📥 Приёмка</h1>
+  <div class="sub" id="sub">поставки в ваш магазин</div>
+  <div class="pick" id="pick"></div>
+</header>
+<div id="list"></div>
+<div class="note">
+  <b>Как принимать.</b> Откройте накладную, сверьте места и товар с фото. Всё сошлось — впишите имя
+  и нажмите «✅ Принял груз». Не хватает или пришло лишнее — опишите в «Расхождениях», статус станет
+  «доставлено с расхождением». Больше 7 дней в пути — карточка красная: поставка застряла.
+</div>
+</div>
+
+<script>
+var DEMO=/[?&]demo=1/.test(location.search);
+var STORES=[['Дракон','Дракон (Костанай)'],['Подарки','Подарки (Петропавловск)'],['Дом одежды','Дом одежды']];
+function ls(k,v){ try{ return v===undefined?localStorage.getItem(k):localStorage.setItem(k,v); }catch(e){ return null; } }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+var ME=ls('fm_store')||'', ITEMS=[], BUSY=false, CFG={url:'',token:''};
+function known(x){ return STORES.some(function(s){ return s[0]===x; }); }
+if(!known(ME)) ME='';
+
+/* адрес таблицы и токен — из зашифрованного buy.json, тот же вход, что у закупа и отправок */
+function b64bytes(t){ var x=atob(t),a=new Uint8Array(x.length); for(var i=0;i<x.length;i++) a[i]=x.charCodeAt(i); return a; }
+function loadCfg(){
+  return fetch('buy.json?v='+Date.now()).then(function(r){ return r.json(); }).then(function(j){
+    if(j.v!==2) return j;
+    var a=JSON.parse(localStorage.getItem('buy_auth')||'null');
+    if(!a) throw new Error('нет входа');
+    var enc=new TextEncoder();
+    return crypto.subtle.importKey('raw',enc.encode(String(a.l).trim().toLowerCase()+':'+a.p),'PBKDF2',false,['deriveKey'])
+      .then(function(k){ return crypto.subtle.deriveKey({name:'PBKDF2',salt:b64bytes(j.salt),iterations:120000,hash:'SHA-256'},
+                                                       k,{name:'AES-GCM',length:256},false,['decrypt']); })
+      .then(function(key){ return crypto.subtle.decrypt({name:'AES-GCM',iv:b64bytes(j.iv)},key,b64bytes(j.ct)); })
+      .then(function(buf){ return JSON.parse(new TextDecoder().decode(buf)); });
+  }).then(function(d){
+    CFG={url:d.url||'',token:d.token||''};
+    try{ localStorage.setItem('fm_ship_cfg',JSON.stringify(CFG)); }catch(e){}
+    return CFG;
+  }).catch(function(){
+    try{ var c=JSON.parse(localStorage.getItem('fm_ship_cfg')||'null'); if(c&&c.url) CFG=c; }catch(e){}
+    return CFG;
+  });
+}
+/* Google под нагрузкой отвечает страницей вместо JSON — это временно. «неизвестное действие» —
+   в таблице ещё старый скрипт, который не знает приёмку. */
+function api(body){
+  return fetch(CFG.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)})
+    .then(function(r){ return r.text(); })
+    .then(function(t){
+      var j=null; try{ j=JSON.parse(t); }catch(e){}
+      if(!j) throw new Error('Google сейчас занят — нажмите ещё раз через минуту');
+      if(!j.ok) throw new Error(j.error==='неизвестное действие'?'СТАРЫЙ СКРИПТ':(j.error||'не получилось'));
+      return j;
+    });
+}
+
+/* ---------- пример интерфейса ---------- */
+function дата(n){ var d=new Date(Date.now()-n*86400000), p=function(x){ return (x<10?'0':'')+x; };
+  return p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+d.getFullYear(); }
+function демо(store){
+  return [
+    {id:'d1',sent:дата(9),from:'Дом одежды',to:'Дракон (Костанай)',places:5,positions:6,pieces:48,who:'Лена',note:'зимние куртки',
+     status:'в пути',days:9,daysText:'9 дней',late:true},
+    {id:'d2',sent:дата(3),from:'Дом одежды',to:'Подарки (Петропавловск)',places:3,positions:3,pieces:35,who:'Лена',
+     note:'куртки сверху, хрупкое внизу',status:'в пути',days:3,daysText:'3 дня'},
+    {id:'d3',sent:дата(10),from:'Поставщик',to:'Подарки (Петропавловск)',places:2,positions:2,pieces:24,who:'Бахыт',
+     note:'',status:'в пути',days:10,daysText:'10 дней',late:true},
+    {id:'d4',sent:дата(1),from:'Поставщик',to:'Дракон (Костанай)',places:2,positions:4,pieces:22,who:'Бахыт',note:'',
+     status:'в пути',days:1,daysText:'1 день'},
+    {id:'d5',sent:дата(4),from:'Дом одежды',to:'Дракон (Костанай)',places:2,positions:3,pieces:12,who:'Лена',note:'',
+     status:'доставлено',daysText:'за 2 дня',delivered:true,got:'Айгуль',gotAt:дата(2)+' 11:40'},
+    {id:'d6',sent:дата(6),from:'Дом одежды',to:'Подарки (Петропавловск)',places:4,positions:2,pieces:12,who:'Лена',note:'',
+     status:'доставлено с расхождением',daysText:'за 3 дня',delivered:true,got:'Марат',gotAt:дата(3)+' 16:05',
+     disc:'не хватает 1 упаковки артикула 466'},
+    {id:'d7',sent:дата(2),from:'Поставщик',to:'Дом одежды',places:1,positions:1,pieces:10,who:'Бахыт',note:'',
+     status:'в пути',days:2,daysText:'2 дня'}
+  ].filter(function(i){ return i.to.indexOf(store)===0; })
+   .map(function(i){ i.view='nakl_demo.html'; i.k=''; i.delivered=!!i.delivered; i.late=!!i.late; return i; })
+   .sort(function(a,b){ return a.delivered!==b.delivered?(a.delivered?1:-1):(b.days||0)-(a.days||0); });
+}
+
+function drawPick(){
+  document.getElementById('pick').innerHTML=STORES.map(function(s){
+    return '<button class="'+(ME===s[0]?'on':'')+'" onclick="choose(&quot;'+s[0]+'&quot;)">'+esc(s[0])+'</button>';
+  }).join('');
+}
+function choose(x){ ME=x; ls('fm_store',x); drawPick(); load(); }
+
+function load(){
+  var list=document.getElementById('list');
+  if(!ME){ list.innerHTML='<div class="empty">Выберите свой магазин — покажу поставки к вам.</div>'; return; }
+  if(DEMO){ ITEMS=демо(ME); draw(); return; }
+  if(!CFG.url){
+    list.innerHTML='<div class="empty">Приёмка ещё не подключена к таблице.<br><a href="recv.html?demo=1">Посмотреть пример</a></div>';
+    return;
+  }
+  if(BUSY) return;
+  BUSY=true;
+  list.innerHTML='<div class="empty">Загружаю поставки…</div>';
+  api({action:'ship_incoming',token:CFG.token,store:ME})
+    .then(function(j){ ITEMS=j.items||[]; draw(); })
+    .catch(function(e){
+      list.innerHTML=e.message==='СТАРЫЙ СКРИПТ'
+        ?'<div class="empty">Приёмка заработает, когда обновим скрипт в Google Таблице.<br><a href="recv.html?demo=1">Посмотреть пример</a></div>'
+        :'<div class="empty">Не загрузилось: '+esc(e.message)+'</div>';
+    })
+    .then(function(){ BUSY=false; });
+}
+
+function draw(){
+  var list=document.getElementById('list');
+  var way=ITEMS.filter(function(i){ return !i.delivered; }).length;
+  var late=ITEMS.filter(function(i){ return i.late; }).length;
+  document.getElementById('sub').textContent=ME+': в пути '+way+(late?' · застряло '+late:'');
+  if(!ITEMS.length){ list.innerHTML='<div class="empty">Поставок к вам сейчас нет.</div>'; return; }
+  var name=ls('fm_recv_name')||'';
+  list.innerHTML=ITEMS.map(function(it,i){
+    var cls=it.delivered?(it.status==='доставлено'?'ok':'disc'):(it.late?'late':'way');
+    var badge=it.delivered?(it.status==='доставлено'?'доставлено':'с расхождением')
+                          :('в пути '+(it.daysText||''));
+    return '<div class="card'+(it.late?' late':'')+'" id="c'+i+'">'+
+      '<div class="top"><b>'+esc(it.from)+' → '+esc(it.to)+'</b><span class="st '+cls+'">'+esc(badge)+'</span></div>'+
+      '<div class="meta">отправлено <b>'+esc(it.sent)+'</b> · мест <b>'+esc(it.places)+'</b> · позиций <b>'+esc(it.positions)+
+        '</b> · штук <b>'+esc(it.pieces)+'</b></div>'+
+      '<div class="meta">отправил: '+esc(it.who||'—')+(it.note?' · '+esc(it.note):'')+'</div>'+
+      (it.delivered
+        ?'<div class="meta">принял: <b>'+esc(it.got)+'</b>'+(it.gotAt?', '+esc(it.gotAt):'')+
+          (it.daysText?' · '+esc(it.daysText):'')+
+          (it.disc?'<br>расхождения: <b>'+esc(it.disc)+'</b>':'')+'</div>'
+        :'')+
+      '<a class="btn ghost" href="'+esc(it.view)+'" target="_blank">📄 Открыть накладную с фото</a>'+
+      (it.delivered?'':
+        '<label>Кто принял</label><input id="n'+i+'" value="'+esc(name)+'" autocomplete="name">'+
+        '<label>Расхождения — если всё сошлось, оставьте пустым</label>'+
+        '<textarea id="d'+i+'" placeholder="например: не хватает 1 упаковки"></textarea>'+
+        '<button class="btn ok" id="b'+i+'" onclick="accept('+i+')">✅ Принял груз</button>'+
+        '<div class="msg" id="m'+i+'"></div>')+
+    '</div>';
+  }).join('');
+}
+
+function accept(i){
+  var it=ITEMS[i];
+  var n=document.getElementById('n'+i).value.trim(), d=document.getElementById('d'+i).value.trim();
+  var b=document.getElementById('b'+i), m=document.getElementById('m'+i);
+  if(!n){ m.textContent='Укажите, кто принял'; return; }
+  ls('fm_recv_name',n);
+  b.disabled=true; m.style.color='var(--muted)'; m.textContent='Отмечаю…';
+  var done=function(j){
+    it.delivered=true; it.status=j.status; it.got=j.got||n; it.disc=d; it.daysText=j.days; it.late=false;
+    it.gotAt='только что';
+    draw();
+  };
+  if(DEMO){
+    setTimeout(function(){
+      done({status:d?'доставлено с расхождением':'доставлено',got:n,
+            days:it.days?'за '+it.daysText:'в тот же день'});
+    },700);
+    return;
+  }
+  api({action:'ship_receive',id:it.id,k:it.k,name:n,note:d})
+    .then(done)
+    .catch(function(e){
+      b.disabled=false; m.style.color='var(--bad)';
+      m.textContent=e.message==='СТАРЫЙ СКРИПТ'?'В таблице ещё старый скрипт — приёмка заработает после обновления':e.message;
+    });
+}
+
+/* доступ — тот же, что у закупа: принимают товароведы */
+var авторизован=false;
+try{ авторизован=!!localStorage.getItem('buy_auth'); }catch(e){}
+if(!авторизован&&!DEMO){
+  document.getElementById('gate').style.display='';
+} else {
+  document.getElementById('app').style.display='';
+  if(DEMO) document.getElementById('demo').style.display='';
+  drawPick();
+  document.getElementById('list').innerHTML='<div class="empty">…</div>';
+  (DEMO?Promise.resolve():loadCfg()).then(load);
+}
+</script></body></html>
