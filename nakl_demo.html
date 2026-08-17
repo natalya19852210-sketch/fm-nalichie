@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ru"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Накладная (пример) · Family Market</title>
+<!-- Пример страницы накладной: разметка снята с настоящего Code.gs (shipView_), фото — заглушки,
+     google.script.run подменён, чтобы кнопка «Принял груз» отвечала понарошку. -->
+<script>
+var google={script:{run:(function(){
+  var h={}, o={
+    withSuccessHandler:function(f){ h.ok=f; return o; },
+    withFailureHandler:function(f){ h.bad=f; return o; },
+    receiveFromPage:function(id,k,n,d){
+      setTimeout(function(){ h.ok({ok:true,status:d?'доставлено с расхождением':'доставлено',days:'за 3 дня',got:n}); },700);
+    }
+  };
+  return o;
+})()}};
+</script>
+<style>body{margin:0;background:#F5F7FA;color:#161C26;font:15px/1.45 -apple-system,"Segoe UI",Roboto,Arial,sans-serif}.wrap{max-width:720px;margin:0 auto;padding:16px}h1{font-size:21px;margin:4px 0}h2{font-size:16px;margin:22px 0 8px}.muted{color:#6B7688;font-size:13px}.st{display:inline-block;margin:10px 0 4px;padding:5px 12px;border-radius:99px;font-size:13.5px;font-weight:700}.st.way{background:#FFF0D6;color:#8A5A00}.st.ok{background:#E3F1E6;color:#177A3A}.st.late{background:#FDE2E0;color:#B3261E}.st.disc{background:#FFE0B2;color:#8A4B00}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.grid div{background:#fff;border:1px solid #E3E8F0;border-radius:12px;padding:10px;text-align:center}.grid b{display:block;font-size:20px}.grid span{font-size:11px;color:#6B7688;text-transform:uppercase}.pics{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}.pics img{width:100%;height:160px;object-fit:cover;border-radius:10px;border:1px solid #E3E8F0;display:block;background:#EEF1F6}.pos{background:#fff;border:1px solid #E3E8F0;border-radius:14px;padding:12px;margin:10px 0}.pos .hd b{font-size:16px}.pos .hd span{color:#6B7688;margin-left:8px}.qty{margin:6px 0 10px}.recv{background:#fff;border:2px solid #1F5FA8;border-radius:14px;padding:12px 14px;margin:16px 0}.recv label{display:block;font-size:12.5px;color:#6B7688;margin:10px 0 4px;font-weight:600}.recv input,.recv textarea{width:100%;box-sizing:border-box;font:inherit;padding:10px;border:1px solid #CBD3DF;border-radius:10px}.recv textarea{min-height:64px}.recv button{width:100%;margin-top:12px;padding:13px;border:0;border-radius:12px;background:#177A3A;color:#fff;font:inherit;font-weight:700;font-size:16px}.recv button:disabled{opacity:.6}
+.demo{background:#1F5FA8;color:#fff;font-size:12.5px;font-weight:600;padding:9px 14px;text-align:center;line-height:1.45}</style>
+</head><body>
+<div class="demo">👀 Пример страницы накладной — так её откроет товаровед по ссылке из реестра или из «Приёмки». Данные ненастоящие.</div>
+<div class="wrap"><h1>Дом одежды → Подарки (Петропавловск)</h1><div class="muted">отправлено <span id="d_sent"></span> · выгружено <span id="d_up"></span></div><div class="st way">в пути 3 дня</div><div class="grid"><div><b>3</b><span>мест</span></div><div><b>3</b><span>позиций</span></div><div><b>35</b><span>штук</span></div></div><p><span class="muted">отправил:</span> Лена</p><p><span class="muted">комментарий:</span> куртки сверху, хрупкое внизу</p><div class="recv" id="recv"><h2 style="margin-top:4px">Приёмка</h2><label for="rn">Кто принял</label><input id="rn" autocomplete="name"><label for="rd">Расхождения — если всё сошлось, оставьте пустым</label><textarea id="rd" placeholder="например: не хватает 1 упаковки артикула 466"></textarea><button id="rb" onclick="doReceive()">✅ Принял груз</button><div id="rm" class="muted" style="margin-top:8px"></div></div><script>var ID="demo1",K="demo";
+try{ document.getElementById("rn").value=localStorage.getItem("fm_recv_name")||""; }catch(e){}
+function doReceive(){
+ var n=document.getElementById("rn").value.trim(), d=document.getElementById("rd").value.trim();
+ var b=document.getElementById("rb"), m=document.getElementById("rm");
+ if(!n){ m.textContent="Укажите, кто принял"; return; }
+ try{ localStorage.setItem("fm_recv_name",n); }catch(e){}
+ b.disabled=true; m.textContent="Отмечаю…";
+ google.script.run.withSuccessHandler(function(r){
+  if(r&&r.ok){ var box=document.getElementById("recv"); box.innerHTML="";
+   var s=document.createElement("div"); s.className="st "+(r.status==="доставлено"?"ok":"disc");
+   s.textContent=r.status+(r.days?" "+r.days:"")+" · "+(r.got||n); box.appendChild(s); }
+  else { b.disabled=false; m.textContent=(r&&r.error)||"Не получилось, попробуйте ещё раз"; }
+ }).withFailureHandler(function(err){ b.disabled=false; m.textContent="Нет связи: "+((err&&err.message)||err); })
+  .receiveFromPage(ID,K,n,d);
+}</script><h2>Фото накладной</h2><div class="pics"><a href="#" onclick="return false"><img data-ph="nakl" data-t="накладная, лист 1"></a><a href="#" onclick="return false"><img data-ph="nakl" data-t="накладная, лист 2"></a></div><h2>Что внутри</h2><div class="pos"><div class="hd"><b>466-чёрная</b><span>S-M-L-XL</span></div><div class="qty">2 уп. × 4 шт = <b>8 шт</b></div><div class="pics"><a href="#" onclick="return false"><img data-ph="tv" data-t="фото товара"></a><a href="#" onclick="return false"><img data-ph="tv" data-t="фото товара"></a></div></div><div class="pos"><div class="hd"><b>Ветровка 2217</b><span>42-44-46-48-50</span></div><div class="qty">3 уп. × 5 шт = <b>15 шт</b></div><div class="pics"><a href="#" onclick="return false"><img data-ph="tv2" data-t="фото товара"></a></div></div><div class="pos"><div class="hd"><b>Кофта 118</b><span>ST</span></div><div class="qty">1 уп. × 12 шт = <b>12 шт</b></div><p class="muted">фото нет</p></div></div>
+<script>
+(function(){
+  var p=function(x){ return (x<10?'0':'')+x; };
+  var ru=function(n){ var d=new Date(Date.now()-n*86400000); return p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+d.getFullYear(); };
+  document.getElementById('d_sent').textContent=ru(3);
+  document.getElementById('d_up').textContent=ru(3)+' 18:20';
+  var col={nakl:['#F3F0E6','#DCD6C4','📄'],tv:['#E4ECF7','#BFD0E8','🧥'],tv2:['#E7F3EA','#C3E2CB','🧥']};
+  [].forEach.call(document.querySelectorAll('img[data-ph]'),function(im){
+    var c=col[im.getAttribute('data-ph')];
+    im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="600" height="700">'+
+      '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+c[0]+'"/><stop offset="1" stop-color="'+c[1]+'"/></linearGradient></defs>'+
+      '<rect width="600" height="700" fill="url(#g)"/><text x="300" y="340" font-size="160" text-anchor="middle">'+c[2]+'</text>'+
+      '<text x="300" y="470" font-size="40" font-family="Arial" fill="#333" text-anchor="middle">'+im.getAttribute('data-t')+'</text></svg>');
+  });
+})();
+</script>
+</body></html>
