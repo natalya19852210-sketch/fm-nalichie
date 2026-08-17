@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="ru"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Задания на сборку — Family Market</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1F5FA8" media="(prefers-color-scheme:light)">
+<meta name="theme-color" content="#0E141E" media="(prefers-color-scheme:dark)">
+<link rel="icon" href="icons/favicon-64.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+:root{--bg:#F5F7FA;--surface:#FFFFFF;--surface2:#EEF1F6;--ink:#161C26;--muted:#6B7688;--line:#E3E8F0;
+--accent:#1F5FA8;--good:#177A3A;--goodbg:#E4F2E9;--warn:#9A6A12;--warnbg:#F8EFDC;--bad:#B4462E;--badbg:#FAE7E2;
+--chip:#EAF1FB;--shadow:0 1px 2px rgba(20,30,50,.06),0 4px 16px rgba(20,30,50,.05);}
+@media (prefers-color-scheme:dark){:root{--bg:#0E141E;--surface:#161F2C;--surface2:#1E2836;--ink:#E9EDF4;
+--muted:#93A0B4;--line:#26303F;--accent:#5FA0E6;--good:#49D17F;--goodbg:#15291F;--warn:#D7A54A;--warnbg:#2A2316;
+--bad:#E8776A;--badbg:#2C1B19;--chip:#1B2838;--shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+-webkit-text-size-adjust:100%;padding-bottom:calc(30px + env(safe-area-inset-bottom))}
+button{font-family:inherit;cursor:pointer;border:0}
+.wrap{max-width:640px;margin:0 auto;padding:0 14px}
+header{position:sticky;top:0;z-index:20;background:var(--bg);padding:13px 0 9px;border-bottom:1px solid var(--line)}
+.hd{display:flex;align-items:center;gap:10px}
+.hd h1{font-size:17px;margin:0;flex:1;letter-spacing:.2px}
+.back{background:var(--surface2);color:var(--ink);border-radius:10px;padding:9px 12px;font-size:14px;font-weight:600}
+.sub{font-size:12px;color:var(--muted);margin-top:3px}
+.sync{font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--surface2);color:var(--muted)}
+.sync.on{background:var(--goodbg);color:var(--good)} .sync.off{background:var(--warnbg);color:var(--warn)}
+.bar{height:7px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:9px}
+.bar>i{display:block;height:100%;background:var(--good);width:0;transition:width .3s}
+.stat{display:flex;gap:14px;margin-top:6px;font-size:12.5px;color:var(--muted);flex-wrap:wrap}
+.stat b{color:var(--ink)}
+.task{display:block;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);
+border-radius:16px;padding:15px;margin:12px 0;box-shadow:var(--shadow)}
+.task .t1{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.task h2{font-size:16.5px;margin:0;flex:1}
+.new{background:var(--accent);color:#fff;font-size:11px;font-weight:800;padding:3px 8px;border-radius:99px}
+.fin{background:var(--goodbg);color:var(--good);font-size:11px;font-weight:800;padding:3px 8px;border-radius:99px}
+.task .pt{display:inline-block;background:var(--ink);color:var(--bg);font-size:12px;font-weight:800;
+padding:4px 10px;border-radius:8px;margin-bottom:7px;letter-spacing:.3px}
+.task .route{font-size:13.5px;font-weight:700;color:var(--accent);margin-bottom:5px}
+.task .t2{font-size:13px;color:var(--muted);margin-bottom:9px}
+.purpose{background:var(--chip);border:1px solid var(--line);border-radius:12px;padding:11px 13px;
+margin:10px 0 2px;font-size:13.5px;line-height:1.45}
+.purpose b{display:block;font-size:14.5px;margin-bottom:3px}
+.task .t3{display:flex;gap:8px;flex-wrap:wrap;font-size:12.5px}
+.pill{background:var(--surface2);border-radius:8px;padding:4px 9px;font-weight:600}
+.pill.left{background:var(--chip);color:var(--accent)}
+.pill.ok{background:var(--goodbg);color:var(--good)}
+.pill.no{background:var(--badbg);color:var(--bad)}
+.scan{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;margin-top:9px;padding:13px;
+border-radius:14px;background:var(--accent);color:#fff;font-size:15.5px;font-weight:650;box-shadow:var(--shadow)}
+.chips{display:flex;gap:7px;margin:11px 0 4px;overflow-x:auto;padding-bottom:2px}
+.chips button{white-space:nowrap;background:var(--surface);border:1px solid var(--line);border-radius:99px;
+padding:9px 14px;font-size:13.5px;font-weight:600;color:var(--muted)}
+.chips button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tabs{display:flex;gap:6px;margin:9px 0 2px}
+.tabs button{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 4px;
+font-size:13.5px;font-weight:700;color:var(--muted)}
+.tabs button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+#q{width:100%;font-size:16px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;
+background:var(--surface);color:var(--ink);outline:none;margin-top:9px}
+#q:focus{border-color:var(--accent)}
+.grp{margin-top:14px}
+.gh{display:flex;align-items:center;gap:9px;padding:8px 3px;font-weight:800;font-size:14.5px}
+.gh .c{font-weight:600;font-size:12.5px;color:var(--muted);margin-left:auto}
+.it{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:8px;
+box-shadow:var(--shadow)}
+.it.off{opacity:.6}
+.it.hit{border-color:var(--accent);box-shadow:0 0 0 3px var(--chip)}
+.nm{font-weight:650;font-size:14.5px;line-height:1.3;margin-bottom:6px}
+.mt{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:9px;font-size:12.5px}
+.tg{background:var(--surface2);border-radius:7px;padding:3px 8px;color:var(--muted);font-weight:600}
+.tg.sz{background:var(--ink);color:var(--bg);font-size:14px;font-weight:800;padding:3px 11px}
+.tg.rl{background:var(--chip);color:var(--accent);font-weight:700}
+.need{display:flex;align-items:baseline;gap:7px;margin-bottom:10px}
+.need b{font-size:25px;font-weight:800;line-height:1}
+.need span{font-size:12.5px;color:var(--muted)}
+.acts{display:flex;gap:7px}
+.acts button{flex:1;padding:12px 5px;border-radius:11px;font-weight:700;font-size:14px}
+.b1{background:var(--good);color:#fff}
+.b2{background:var(--warnbg);color:var(--warn);border:1px solid var(--warn)}
+.b3{background:var(--badbg);color:var(--bad);border:1px solid var(--bad)}
+.b4{background:var(--surface2);color:var(--muted);flex:0 0 auto;padding:12px 15px}
+.res{display:flex;align-items:center;font-weight:700;font-size:14px;flex:1}
+.res.f{color:var(--good)}.res.p{color:var(--warn)}.res.n{color:var(--bad)}
+.res small{color:var(--muted);font-weight:600;margin-left:6px}
+.step{display:flex;align-items:center;gap:9px;margin-top:8px}
+.step button{width:46px;height:46px;border-radius:11px;background:var(--surface2);color:var(--ink);font-size:22px;font-weight:700}
+.step .v{flex:1;text-align:center;font-size:23px;font-weight:800}
+.step .go{width:auto;flex:1;background:var(--good);color:#fff;font-size:15px}
+.empty{text-align:center;color:var(--muted);padding:46px 18px;font-size:15px;line-height:1.5}
+.who{width:100%;padding:13px;border-radius:12px;border:1px solid var(--line);background:var(--surface);
+color:var(--ink);font-size:16px;margin:10px 0 4px}
+.sum{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0;box-shadow:var(--shadow)}
+.sum h3{margin:0 0 9px;font-size:15.5px}
+.row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);font-size:14px}
+.row:last-child{border:0}
+.note{font-size:12.5px;color:var(--muted);text-align:center;margin:14px 0 4px;line-height:1.5}
+.msg{margin:9px 0;padding:11px 13px;border-radius:12px;font-size:13.5px;background:var(--chip);color:var(--ink)}
+.msg.bad{background:var(--badbg);color:var(--bad)}
+.msg.ok{background:var(--goodbg);color:var(--good)}
+#cams{position:fixed;inset:0;z-index:100;background:#000;display:none}
+#cams.on{display:block}
+#cams video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.win{position:absolute;left:7%;right:7%;top:38%;height:22%;border:2px solid rgba(255,255,255,.9);
+border-radius:14px;box-shadow:0 0 0 100vmax rgba(0,0,0,.55)}
+.win i{position:absolute;left:8px;right:8px;top:50%;height:2px;background:#FF3B30;opacity:.85;
+animation:sweep 1.6s ease-in-out infinite}
+@keyframes sweep{0%,100%{transform:translateY(-42px)}50%{transform:translateY(42px)}}
+.tip{position:absolute;left:0;right:0;top:calc(38% - 52px);text-align:center;color:#fff;font-size:15px;
+text-shadow:0 1px 4px rgba(0,0,0,.8);padding:0 20px;line-height:1.4}
+.cbtns{position:absolute;left:0;right:0;bottom:calc(26px + env(safe-area-inset-bottom));
+display:flex;gap:10px;justify-content:center;padding:0 16px}
+.cbtn{border-radius:14px;padding:14px 20px;font-size:15px;font-weight:650;background:rgba(255,255,255,.16);
+color:#fff;backdrop-filter:blur(8px)}
+.cbtn.pri{background:#fff;color:#111}
+</style></head><body>
+<div class="wrap"><div id="app"><div class="empty">Загрузка…</div></div></div>
+<div id="cams"><video id="cv" playsinline muted autoplay></video>
+  <div class="win"><i></i></div>
+  <div class="tip">Наведите на штрихкод товара</div>
+  <div class="cbtns"><button class="cbtn" id="ctorch" style="display:none">💡 Свет</button>
+    <button class="cbtn pri" id="cclose">Закрыть</button></div></div>
+<script>
+/* ================= адрес веб-приложения Apps Script ================= */
+var API = "https://script.google.com/macros/s/AKfycbxVqw8WMy9LuGJz0kVmDVpMu3I4UcTlIbSvqLp_o3W_erCqEF6pYnAal4QKkS4-A_0y/exec";
+
+var idx=null, apiErr=null, task=null, rows=[], marks={}, tab='todo', q='', who='', openG={}, syncState='', msg=null;
+var BC=null, ZX=null, RUNSTOP=null, hitId=null;
+var LS={g:function(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v);}catch(e){return d;}},
+        s:function(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}};
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function app(){return document.getElementById('app');}
+function sync(s){syncState=s;var e=document.getElementById('sy');if(!e)return;
+  e.className='sync '+s;e.textContent=s==='on'?'общий список':(s==='off'?'нет связи':'…');}
+function say(t,cls){msg=t?{t:t,c:cls||''}:null;render();}
+
+/* ================= сеть ================= */
+function api(qs){ return fetch(API+qs+(qs.indexOf('?')<0?'?':'&')+'t='+Date.now()).then(function(r){return r.json();}); }
+function loadTasks(){
+  if(!API){ idx={tasks:[],noapi:1}; return Promise.resolve(); }
+  return api('').then(function(j){
+      if(j&&j.ok){ idx=j; apiErr=null; LS.s('idx',j); sync('on'); }
+      else { apiErr=(j&&j.err)||'таблица ответила ошибкой'; idx=LS.g('idx',{tasks:[]}); sync('off'); }
+    })
+    .catch(function(){ apiErr=null; idx=LS.g('idx',{tasks:[]}); sync('off'); });
+}
+function loadTask(id){
+  var meta=null, L=(idx&&idx.tasks)||[];
+  for(var j=0;j<L.length;j++) if(L[j].id===id) meta=L[j];
+  task=meta||{id:id,name:id};
+  rows=LS.g('r_'+id,[])||[]; marks=LS.g('m_'+id,{})||{};
+  tab='todo'; q=''; openG={}; msg=null; hitId=null;
+  var seen=LS.g('seen',{})||{}; seen[id]=1; LS.s('seen',seen);
+  render();
+  if(!API) return;
+  api('?task='+encodeURIComponent(id)).then(function(j){
+    if(j&&j.ok){ rows=j.rows||[]; marks=j.marks||{}; LS.s('r_'+id,rows); LS.s('m_'+id,marks); sync('on'); render(); }
+  }).catch(function(){ sync('off'); });
+}
+function pullMarks(){
+  if(!API||!task) return;
+  api('?marks='+encodeURIComponent(task.id)).then(function(j){
+    if(j&&j.ok){ marks=j.marks||{}; LS.s('m_'+task.id,marks); sync('on'); render(); }
+  }).catch(function(){ sync('off'); });
+}
+function push(line,mark){
+  if(!API) return;
+  fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({task:task.id,line:String(line),q:mark?mark.q:0,n:mark&&mark.n?1:0,u:who,del:mark?0:1})})
+    .then(function(){sync('on');}).catch(function(){sync('off');});
+}
+function setMark(r,mark){
+  if(mark) marks[r.i]=mark; else delete marks[r.i];
+  LS.s('m_'+task.id,marks); render(); push(r.i,mark);
+}
+
+/* ================= сканер (та же связка, что в чекере остатков) ================= */
+function normBC(b){ b=(b||'').trim().toUpperCase(); if(b.charAt(0)===']'&&b.length>3) b=b.slice(3);
+  return b.replace(/\s/g,''); }
+function loadBC(){ if(BC) return Promise.resolve(BC);
+  return fetch('bc.json').then(function(r){return r.json();}).then(function(j){BC=j;return j;}); }
+function loadZX(){ if(ZX) return Promise.resolve(ZX);
+  return new Promise(function(res,rej){
+    var s=document.createElement('script'); s.src='scan/zxing.js';
+    s.onload=function(){
+      var h=new Map();
+      h.set(ZXing.DecodeHintType.POSSIBLE_FORMATS,[ZXing.BarcodeFormat.EAN_13,ZXing.BarcodeFormat.EAN_8,
+        ZXing.BarcodeFormat.CODE_128,ZXing.BarcodeFormat.CODE_39,ZXing.BarcodeFormat.ITF,
+        ZXing.BarcodeFormat.UPC_A,ZXing.BarcodeFormat.UPC_E]);
+      h.set(ZXing.DecodeHintType.TRY_HARDER,true);
+      var rd=new ZXing.MultiFormatReader(); rd.setHints(h);
+      ZX=function(cvs){ try{
+          var src=new ZXing.HTMLCanvasElementLuminanceSource(cvs);
+          var r=rd.decode(new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(src)));
+          return Promise.resolve(r?r.getText():null);
+        }catch(e){ return Promise.resolve(null); } finally{ try{rd.reset();}catch(e2){} } };
+      res(ZX);
+    };
+    s.onerror=function(){rej(new Error('сканер не загрузился'));};
+    document.head.appendChild(s);
+  }); }
+function decoder(){
+  if(window.BarcodeDetector&&BarcodeDetector.getSupportedFormats){
+    return BarcodeDetector.getSupportedFormats().then(function(fs){
+      var w=['ean_13','ean_8','code_128','code_39','itf','upc_a','upc_e'].filter(function(f){return fs.indexOf(f)>=0;});
+      if(!w.length) throw 0;
+      var d=new BarcodeDetector({formats:w});
+      return function(c){return d.detect(c).then(function(r){return r&&r.length?r[0].rawValue:null;});};
+    }).catch(loadZX);
+  }
+  return loadZX();
+}
+function onCode(code){
+  var k=normBC(code), rec=BC&&BC.m?BC.m[k]:null;
+  if(!rec){ say('Штрихкод '+esc(code)+' не найден в базе. Найдите позицию поиском по артикулу.','bad'); return; }
+  var p=String(rec).split('.'), art=BC.a[+p[0]], size=BC.s[+p[1]];
+  var found=null, i;
+  for(i=0;i<rows.length;i++) if(rows[i].a===art&&String(rows[i].z)===String(size)){ found=rows[i]; break; }
+  if(!found) for(i=0;i<rows.length;i++) if(rows[i].a===art){ found=rows[i]; break; }
+  if(!found){ say('«'+esc(art)+'», размер '+esc(size)+' — этой позиции в задании нет.','bad'); return; }
+  var m=marks[found.i];
+  hitId=found.i; tab='todo'; q=''; openG[(task.group||'').indexOf('рейл')>=0?String(found.r||0):found.c]=true;
+  if(m) say('«'+esc(found.n)+'» ('+esc(found.z)+') уже отмечена: '+(m.n?'не нашли':'собрано '+m.q)+'.','');
+  else  say('Нашли: «'+esc(found.n)+'», размер '+esc(found.z)+' — нужно '+found.q+' шт.','ok');
+  var el=document.getElementById('it'+found.i);
+  if(el) el.scrollIntoView({block:'center'});
+  try{ if(navigator.vibrate) navigator.vibrate(60); }catch(e){}
+}
+function openCam(){
+  var box=document.getElementById('cams'), vid=document.getElementById('cv');
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ say('Камера недоступна на этом телефоне','bad'); return; }
+  say('Открываю камеру…');
+  Promise.all([loadBC(),decoder(),navigator.mediaDevices.getUserMedia({
+    video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false})])
+  .then(function(a){
+    var decode=a[1], stream=a[2]; say(null);
+    vid.srcObject=stream; box.classList.add('on');
+    var trk=stream.getVideoTracks()[0], tb=document.getElementById('ctorch'), torch=false;
+    var caps=trk.getCapabilities?trk.getCapabilities():{};
+    if(caps&&caps.torch){ tb.style.display='';
+      tb.onclick=function(){torch=!torch;trk.applyConstraints({advanced:[{torch:torch}]}).catch(function(){});}; }
+    else tb.style.display='none';
+    var cvs=document.createElement('canvas'), ctx=cvs.getContext('2d',{willReadFrequently:true});
+    var last='',same=0,stop=false,pass=0;
+    RUNSTOP=function(){stop=true;try{stream.getTracks().forEach(function(t){t.stop();});}catch(e){}
+      box.classList.remove('on'); vid.srcObject=null; RUNSTOP=null;};
+    (function tick(){
+      if(stop) return;
+      var w=vid.videoWidth,h=vid.videoHeight;
+      if(!w){ setTimeout(tick,120); return; }
+      pass=(pass+1)%3;
+      var sw,sh,sx,sy;
+      if(pass){sw=Math.round(w*0.88);sh=Math.round(h*0.30);sx=(w-sw)>>1;sy=(h-sh)>>1;}
+      else{sw=w;sh=h;sx=0;sy=0;}
+      var kk=Math.min(1.6,1280/sw);
+      cvs.width=Math.round(sw*kk); cvs.height=Math.round(sh*kk);
+      ctx.drawImage(vid,sx,sy,sw,sh,0,0,cvs.width,cvs.height);
+      decode(cvs).then(function(txt){
+        if(stop) return;
+        if(txt){ if(txt===last) same++; else { last=txt; same=1; }
+          if(same>=2){ RUNSTOP&&RUNSTOP(); onCode(txt); return; } }
+        setTimeout(tick,90);
+      }).catch(function(){ setTimeout(tick,140); });
+    })();
+  }).catch(function(){ say('Не удалось открыть камеру. Разрешите доступ в настройках браузера.','bad'); });
+}
+
+/* ================= экраны ================= */
+function screenTasks(){
+  var h='<header><div class="hd"><h1>📋 Задания на сборку</h1>'
+    +'<button class="back" onclick="location.href=\'index.html\'">Остатки</button></div>'
+    +'<div class="sub">'+(idx&&idx.gen?'обновлено '+esc(idx.gen):'')+'</div></header>';
+  if(!API) return h+'<div class="empty">Адрес общей таблицы не настроен.<br>Задания появятся, когда его впишут.</div>';
+  if(apiErr) return h+'<div class="empty">Таблица сборки отвечает ошибкой:<br><br><b>'+esc(apiErr)
+    +'</b><br><br>Похоже, в ней ещё не запускали «ПодготовитьЛисты».</div>';
+  if(!idx) return h+'<div class="empty">Загрузка…</div>';
+  var mine=idx.tasks||[];
+  if(!mine.length) return h+'<div class="empty">Активных заданий нет.<br>Новое появится здесь само.</div>';
+  var seen=LS.g('seen',{})||{};
+  mine.forEach(function(t){
+    /* цифры берём с сервера — тогда в списке у всех телефонов один и тот же прогресс;
+       локальные отметки нужны только пока старая версия скрипта не отдаёт счётчики */
+    var got,none,pos;
+    if(typeof t.done==='number'){ pos=t.done; got=t.got||0; none=t.none||0; }
+    else { var m=LS.g('m_'+t.id,{})||{}; got=0;none=0;pos=0;
+      for(var k in m){ pos++; if(m[k].n) none++; else got+=m[k].q; } }
+    var left=t.lines-pos, fin=left<=0&&pos>0;
+    var route = t.kind==='перемещение' ? (esc(t.from||t.point)+' → '+esc(t.to||'')) : esc(t.kind||'');
+    h+='<button class="task" data-task="'+esc(t.id)+'">'
+      +(t.point?'<div class="pt">'+esc(t.point)+'</div>':'')
+      +'<div class="t1"><h2>'+esc(t.name)+'</h2>'
+      +(fin?'<span class="fin">готово</span>':(!seen[t.id]?'<span class="new">НОВОЕ</span>':''))+'</div>'
+      +(route?'<div class="route">'+(t.kind==='перемещение'?'🚚 ':'🏷 ')+route+'</div>':'')
+      +'<div class="t2">'+(t.todo?esc(t.todo)+' · ':'')+'от '+esc(t.date)+'</div><div class="t3">'
+      +'<span class="pill left">осталось '+(left>0?left:0)+' поз</span>'
+      +'<span class="pill">всего '+t.lines+' поз · '+t.qty+' шт</span>'
+      +(got?'<span class="pill ok">собрано '+got+' шт</span>':'')
+      +(none?'<span class="pill no">не нашли '+none+' поз</span>':'')+'</div></button>';
+  });
+  return h+'<div class="note">Отметки видят все сразу. Новое задание появляется здесь само.</div>';
+}
+function stOf(r){ var m=marks[r.i]; if(!m) return 'todo'; if(m.n) return 'n'; return m.q>=r.q?'f':'p'; }
+function card(r){
+  var s=stOf(r), m=marks[r.i], inner;
+  if(s==='todo'){
+    inner='<div class="acts"><button class="b1" data-a="ok" data-i="'+esc(r.i)+'">Нашла всё</button>'
+      +(r.q>1?'<button class="b2" data-a="part" data-i="'+esc(r.i)+'">Часть</button>':'')
+      +'<button class="b3" data-a="no" data-i="'+esc(r.i)+'">Нет</button></div>';
+  } else {
+    var lbl=s==='f'?'✓ собрано '+m.q+' шт':(s==='p'?'◐ собрано '+m.q+' из '+r.q:'✕ не нашли');
+    inner='<div class="acts"><div class="res '+s+'">'+lbl+(m.u?'<small>'+esc(m.u)+'</small>':'')+'</div>'
+      +'<button class="b4" data-a="undo" data-i="'+esc(r.i)+'">Вернуть</button></div>';
+  }
+  return '<div class="it'+(s!=='todo'?' off':'')+(String(hitId)===String(r.i)?' hit':'')+'" id="it'+esc(r.i)+'">'
+    +'<div class="nm">'+esc(r.n)+'</div><div class="mt">'
+    +'<span class="tg sz">'+esc(r.z)+'</span><span class="tg">'+esc(r.a)+'</span>'
+    +(r.v?'<span class="tg">'+esc(r.v)+'</span>':'')
+        +(r.r?'<span class="tg rl">рейл '+r.r+' ₸</span>':'')+'</div>'
+    +'<div class="need"><b>'+r.q+'</b><span>шт</span></div>'+inner+'</div>';
+}
+function screenTask(){
+  var all=rows;
+  var need=0,got=0,pos=0,none=0;
+  all.forEach(function(r){ need+=r.q; var m=marks[r.i]; if(m){pos++; if(m.n)none+=r.q; else got+=m.q;} });
+  var pct=need?Math.round(got/need*100):0;
+  var route = task.kind==='перемещение'
+    ? ('🚚 '+esc(task.from||task.point)+' → '+esc(task.to||''))
+    : ('🏷 '+esc(task.point||'')+(task.kind?' · '+esc(task.kind):''));
+  var h='<header><div class="hd"><button class="back" data-a="home">‹ Задания</button>'
+    +'<h1>'+esc(task.name||'')+'</h1><span class="sync" id="sy">…</span></div>'
+    +'<div class="bar"><i style="width:'+pct+'%"></i></div>'
+    +'<div class="stat"><span>собрано <b>'+got+'</b> из '+need+' шт</span>'
+    +'<span>пройдено <b>'+pos+'</b> из '+all.length+' поз</span>'
+    +(none?'<span>не нашли <b>'+none+'</b></span>':'')+'</div>'
+    +'<button class="scan" data-a="scan">📷 Сканировать штрихкод</button></header>'
+    +'<div class="purpose"><b>'+route+'</b>'+(task.todo?esc(task.todo):'')+'</div>'
+    +'<header style="border:0;padding-top:4px">'
+    +'<div class="tabs"><button data-t="todo" class="'+(tab==='todo'?'on':'')+'">Искать</button>'
+    +'<button data-t="done" class="'+(tab==='done'?'on':'')+'">Собрано</button>'
+    +'<button data-t="none" class="'+(tab==='none'?'on':'')+'">Нет</button>'
+    +'<button data-t="sum" class="'+(tab==='sum'?'on':'')+'">Итог</button></div>';
+  if(!who) h+='<input class="who" id="who" placeholder="Ваше имя — чтобы было видно, кто собрал">';
+  h+='</header>';
+  if(msg) h+='<div class="msg '+msg.c+'">'+msg.t+'</div>';
+  if(tab==='sum') return h+screenSum();
+  h+='<input id="q" type="search" placeholder="Поиск: название, артикул, код" value="'+esc(q)+'">';
+  var rr=all.filter(function(r){
+    var s=stOf(r);
+    if(tab==='todo'&&s!=='todo') return false;
+    if(tab==='done'&&s!=='f'&&s!=='p') return false;
+    if(tab==='none'&&s!=='n') return false;
+    if(q&&(r.n+' '+r.a+' '+r.k+' '+r.c).toLowerCase().indexOf(q.toLowerCase())<0) return false;
+    return true;
+  });
+  if(!rr.length) return h+'<div class="empty">'+(tab==='todo'?(q?'Ничего не найдено':'Всё собрано 🎉'):'Пусто')+'</div>';
+  /* выкладку на рейлы группируем по ЦЕНЕ РЕЙЛА — сборщик раскладывает по стойкам,
+     а не по категориям; для перемещений наоборот удобнее идти по секциям зала */
+  var byRail = (task.group||'').indexOf('рейл')>=0;
+  var by={}, keys;
+  rr.forEach(function(r){ var k=byRail?String(r.r||0):r.c; (by[k]=by[k]||[]).push(r); });
+  keys=Object.keys(by);
+  keys.sort(byRail?function(a,b){return (+a)-(+b);}:function(a,b){return a.localeCompare(b);});
+  var big=rr.length>120;
+  h+=keys.map(function(c){
+    var L=by[c], op=openG[c]===true||(!big&&openG[c]!==false);
+    var ttl=byRail?('Рейл '+(+c).toLocaleString('ru-RU')+' ₸'):c;
+    return '<div class="grp"><div class="gh" data-g="'+esc(c)+'">'+esc(ttl)
+      +'<span class="c">'+L.length+' поз · '+L.reduce(function(a,b){return a+b.q;},0)+' шт '+(op?'▾':'▸')+'</span></div>'
+      +(op?L.map(card).join(''):'')+'</div>';
+  }).join('');
+  return h;
+}
+function screenSum(){
+  var need=0,got=0,none=0,pos=0;
+  rows.forEach(function(r){ need+=r.q; var m=marks[r.i]; if(m){pos++; if(m.n)none+=r.q; else got+=m.q;} });
+  var h='<div class="sum"><h3>'+esc(task.name||'')+'</h3>'
+    +'<div class="row"><span>Нужно</span><b>'+need+' шт · '+rows.length+' поз</b></div>'
+    +'<div class="row"><span>Собрано</span><b style="color:var(--good)">'+got+' шт</b></div>'
+    +'<div class="row"><span>Не нашли</span><b style="color:var(--bad)">'+none+' шт</b></div>'
+    +'<div class="row"><span>Осталось пройти</span><b>'+(rows.length-pos)+' поз</b></div></div>';
+  return h+'<div class="note">'+esc(task.todo||'')+'<br>Итог виден в общей таблице.</div>';
+}
+function render(){ app().innerHTML = task?screenTask():screenTasks(); if(task) sync(syncState||'…'); }
+
+/* ================= события ================= */
+document.addEventListener('click',function(e){
+  if(e.target.id==='cclose'){ RUNSTOP&&RUNSTOP(); return; }
+  var t=e.target.closest('[data-task],[data-a],[data-t],[data-g]');
+  if(!t) return;
+  if(t.dataset.task){ loadTask(t.dataset.task); return; }
+  var a=t.dataset.a;
+  if(a==='home'){ task=null; rows=[]; msg=null; hitId=null; render(); return; }
+  if(a==='scan'){ openCam(); return; }
+  if(t.dataset.t){ tab=t.dataset.t; msg=null; render(); return; }
+  
+  if(t.dataset.g){ var c=t.dataset.g; openG[c]=!openG[c]; render(); return; }
+  if(a){
+    var r=null; for(var i=0;i<rows.length;i++) if(String(rows[i].i)===String(t.dataset.i)){r=rows[i];break;}
+    if(!r) return;
+    var w=document.getElementById('who'); if(w&&w.value.trim()){ who=w.value.trim(); LS.s('who',who); }
+    if(a==='ok'){ hitId=null; return setMark(r,{q:r.q,u:who}); }
+    if(a==='no'){ hitId=null; return setMark(r,{q:0,n:1,u:who}); }
+    if(a==='undo') return setMark(r,null);
+    if(a==='part'){
+      var node=document.getElementById('it'+r.i); if(!node) return;
+      var v=Math.max(1,r.q-1), box=document.createElement('div'); box.className='step';
+      box.innerHTML='<button data-s="-">−</button><div class="v">'+v+'</div><button data-s="+">+</button>'
+        +'<button class="go" data-s="go">Записать</button>';
+      node.querySelector('.acts').replaceWith(box);
+      box.addEventListener('click',function(ev){
+        var b=ev.target.closest('[data-s]'); if(!b) return; ev.stopPropagation();
+        if(b.dataset.s==='-') v=Math.max(0,v-1);
+        else if(b.dataset.s==='+') v=Math.min(r.q,v+1);
+        else { hitId=null; return setMark(r, v>0?{q:v,u:who}:{q:0,n:1,u:who}); }
+        box.querySelector('.v').textContent=v;
+      });
+    }
+  }
+});
+document.addEventListener('input',function(e){
+  if(e.target.id==='q'){ q=e.target.value; var p=e.target.selectionStart; render();
+    var n=document.getElementById('q'); if(n){n.focus(); n.setSelectionRange(p,p);} }
+  if(e.target.id==='who'){ who=e.target.value.trim(); LS.s('who',who); }
+});
+document.addEventListener('visibilitychange',function(){ if(!document.hidden&&task) pullMarks(); });
+/* раз в минуту: у Apps Script суточный лимит времени работы, чаще опрашивать незачем */
+setInterval(function(){ if(!document.hidden&&task) pullMarks(); },60000);
+
+who=LS.g('who','')||'';
+loadTasks().then(render);
+</script></body></html>

@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="ru"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Крупный чек · Family Market</title>
+<link rel="icon" href="icons/favicon-64.png">
+<meta name="theme-color" content="#1F5FA8" media="(prefers-color-scheme:light)">
+<meta name="theme-color" content="#0E141E" media="(prefers-color-scheme:dark)">
+<style>
+:root{--bg:#F5F7FA;--surface:#FFFFFF;--surface2:#EEF1F6;--ink:#161C26;--muted:#6B7688;--line:#E3E8F0;--accent:#1F5FA8;--good:#177A3A;--bad:#B3261E;--gold:#B98900;--chip:#EAF1FB;--shadow:0 1px 2px rgba(20,30,50,.06),0 4px 16px rgba(20,30,50,.05);}
+@media (prefers-color-scheme:dark){:root{--bg:#0E141E;--surface:#161F2C;--surface2:#1E2836;--ink:#E9EDF4;--muted:#93A0B4;--line:#26303F;--accent:#5FA0E6;--good:#49D17F;--bad:#F2867C;--gold:#E0B640;--chip:#1B2838;--shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;-webkit-text-size-adjust:100%;}
+.wrap{max-width:640px;margin:0 auto;padding:12px 12px 40px;}
+header{position:sticky;top:0;background:var(--bg);padding:10px 0 8px;z-index:5;}
+.back{display:inline-flex;align-items:center;gap:6px;border:0;background:none;color:var(--accent);font-size:14.5px;font-weight:600;padding:4px 0;cursor:pointer;}
+h1{font-size:22px;margin:6px 0 2px;}
+.sub{color:var(--muted);font-size:13px;}
+
+/* переключатель периода: месяц копится в ступени, «сегодня» показывает смену */
+.tabs{display:flex;gap:8px;margin:12px 0 2px;}
+.tabs button{flex:1;padding:10px 6px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-family:inherit;font-size:14px;font-weight:650;cursor:pointer;}
+.tabs button.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+.goals{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:13px 14px 12px;margin:10px 0 4px;box-shadow:var(--shadow);}
+.goals .ttl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:9px;}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.step{border:1.5px solid var(--line);border-radius:12px;padding:9px 4px;text-align:center;background:var(--surface2);}
+.step .u{font-size:19px;font-weight:800;line-height:1.1;}
+.step .p{font-size:11px;color:var(--muted);margin-top:3px;}
+.step.hit{border-color:var(--good);background:var(--chip);}
+.goals .fine{font-size:12px;color:var(--muted);margin-top:9px;line-height:1.45;}
+.goals .fine b{color:var(--ink);}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:13px 14px;margin:10px 0;box-shadow:var(--shadow);}
+.card.me{border-color:var(--accent);border-width:2px;}
+.top{display:flex;align-items:center;gap:12px;}
+.medal{font-size:26px;width:31px;text-align:center;flex:none;}
+.who{flex:1;min-width:0;}
+.who b{display:block;font-size:16px;font-weight:700;}
+.who span{font-size:12px;color:var(--muted);display:block;margin-top:1px;}
+.val{text-align:right;flex:none;min-width:92px;}
+.val .n{font-size:27px;font-weight:800;line-height:1;}
+.val .cap{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;}
+.val .d{font-size:12px;font-weight:700;margin-top:3px;}
+.up{color:var(--good)} .dn{color:var(--bad)} .fl{color:var(--muted)}
+
+.trk{margin-top:11px;}
+.bar{position:relative;height:9px;border-radius:99px;background:var(--surface2);overflow:hidden;}
+.bar i{display:block;height:100%;border-radius:99px;background:var(--accent);}
+.bar i.ok{background:var(--good);}
+.bar u{position:absolute;top:0;bottom:0;width:2px;background:var(--bg);opacity:.85;}
+.ticks{position:relative;height:14px;margin-top:3px;font-size:10px;color:var(--muted);}
+.ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;}
+
+/* распределение чеков: одна полоса на диапазон, тонкая риска — прошлый год */
+.dist{margin-top:12px;padding-top:10px;border-top:1px solid var(--line);}
+.dist .h{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:7px;}
+.row{display:grid;grid-template-columns:64px 1fr 58px;align-items:center;gap:7px;margin:4px 0;font-size:11.5px;}
+.row .nm{color:var(--muted);white-space:nowrap;}
+.row.big .nm{color:var(--ink);font-weight:700;}
+/* без overflow:hidden — иначе риска прошлого года у самой длинной полосы срезается краем */
+.hb{position:relative;height:14px;border-radius:5px;background:var(--surface2);}
+.hb i{display:block;height:100%;border-radius:5px;background:var(--accent);opacity:.55;}
+.row.big .hb i{background:var(--gold);opacity:.9;}
+.hb u{position:absolute;top:-1px;bottom:-1px;width:2px;background:var(--ink);opacity:.45;}
+.row .pc{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;}
+.row .pc em{font-style:normal;font-weight:600;font-size:10.5px;margin-left:3px;}
+.legend{font-size:11px;color:var(--muted);margin-top:7px;line-height:1.45;}
+
+.day{margin-top:11px;padding-top:10px;border-top:1px solid var(--line);font-size:12.5px;line-height:1.6;}
+.day b{font-weight:700;}
+.day .tag{display:inline-block;background:var(--chip);color:var(--accent);border-radius:7px;padding:1px 7px;font-weight:700;}
+
+.mine{margin:16px 0 6px;font-size:13px;color:var(--muted);}
+.pick{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;}
+.pick button{flex:1;min-width:96px;padding:9px 6px;border-radius:11px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:13.5px;font-weight:600;cursor:pointer;}
+.pick button.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+.note{background:var(--surface2);border-radius:14px;padding:13px 14px;margin-top:16px;font-size:13px;line-height:1.5;color:var(--ink);}
+.note b{display:block;margin-bottom:5px;}
+.note ul{margin:6px 0 0;padding-left:18px;} .note li{margin:3px 0;}
+.note li b{display:inline;}
+.foot{margin-top:16px;color:var(--muted);font-size:12px;text-align:center;line-height:1.5;}
+.err{padding:22px;text-align:center;color:var(--muted);}
+</style></head><body><div class="wrap">
+<header>
+  <button class="back" onclick="location.href='index.html'">‹ Остатки</button>
+  <h1>Крупный чек</h1>
+  <div class="sub" id="sub">загружаю…</div>
+</header>
+
+<div class="tabs" id="tabs">
+  <button data-p="m" class="on">За месяц</button>
+  <button data-p="d">Сегодня</button>
+</div>
+
+<div class="goals" id="goals"></div>
+<div id="list"></div>
+
+<div class="mine">Ваш магазин — подсветим его в списке:</div>
+<div class="pick" id="pick"></div>
+
+<div class="note">
+  <b>Что это за показатель</b>
+  Из всех чеков магазина считаем долю тех, что <b>от 20 000 ₸</b>. Это не выручка и не
+  количество покупателей — только структура покупок.
+  <ul>
+    <li><b>Место в рейтинге</b> — по приросту к своему прошлому году, а не по уровню:
+        магазины разные, соревнуемся с собой прошлогодним.</li>
+    <li><b>Ступени</b> у каждого магазина свои — прошлогодний результат этого же месяца
+        плюс 1, 2 и 3 п.п. Зимой крупных чеков втрое меньше, чем в августе,
+        одна цель на весь год не годится.</li>
+    <li><b>Год назад</b> берём тот же день недели, а не то же число.</li>
+    <li>Обновляется каждый час, с 8:00 до 22:00.</li>
+  </ul>
+  <b style="margin-top:9px">Как поднять</b>
+  Крупный чек — это чаще комплект, чем одна дорогая вещь. Собрать образ целиком: низ,
+  верх, обувь; предложить вторую пару со скидкой; начинать показ с того, что дороже.
+</div>
+<div class="foot" id="foot"></div>
+</div>
+<script>
+var STORES=['Дом одежды','Дракон','Подарки'];
+var MED=['🥇','🥈','🥉'];
+var DB=null, PER='m';
+function my(){ try{ return localStorage.getItem('fm_store')||''; }catch(e){ return ''; } }
+function setMy(v){ try{ localStorage.setItem('fm_store',v); }catch(e){} draw(); }
+function nf(x){ return (x===null||x===undefined)?'—':String(Number(x).toFixed(1)).replace('.',','); }
+function delta(d,tail){
+  if(d===null||d===undefined) return '<span class="fl">—</span>';
+  var cls=d>0?'up':(d<0?'dn':'fl');
+  var s=(d>0?'▲ +':(d<0?'▼ −':'')) + nf(Math.abs(d));
+  return '<span class="'+cls+'">'+s+'</span>'+(tail?' <span class="fl">'+tail+'</span>':'');
+}
+/* значения выбранного периода: у месяца и дня разные ключи, дальше код общий */
+function vals(s){
+  return PER==='m'
+    ? {sh:s.m, ly:s.mly, big:s.big, d:s.d, ok:!!s.m}
+    : {sh:s.dm, ly:null, big:s.dbig, d:s.dd, ok:!!s.dok};
+}
+function goals(){
+  var me=my(), mine=null;
+  DB.stores.forEach(function(s){ if(s.n===me) mine=s; });
+  var box=document.getElementById('goals');
+  if(!mine||!mine.goals){
+    box.innerHTML='<div class="ttl">Ступени месяца</div>'
+      +'<div class="fine">Выберите свой магазин внизу — покажем ваши ступени. '
+      +'Они считаются от прошлогоднего результата именно этого магазина.</div>';
+    return;
+  }
+  var h='<div class="ttl">Ступени месяца · '+mine.n+'</div><div class="steps">';
+  mine.goals.forEach(function(g,i){
+    var hit=(mine.big!==null&&mine.big!==undefined&&mine.big>=g);
+    h+='<div class="step'+(hit?' hit':'')+'"><div class="u">'+nf(g)+'%'+(hit?' ✓':'')+'</div>'
+      +'<div class="p">+'+(i+1)+' п.п. к ПГ</div></div>';
+  });
+  h+='</div><div class="fine">Год назад в этом месяце было <b>'+nf(mine.base)
+    +'%</b> крупных чеков. Сейчас накоплено <b>'+nf(mine.big)+'%</b>.</div>';
+  box.innerHTML=h;
+}
+/* шкала тянется до верхней ступени с запасом — чтобы взятая цель была видна на полосе */
+function track(s,v){
+  if(!s.goals||v.big===null||v.big===undefined) return '';
+  var hi=Math.max(s.goals[2],v.big)*1.12, w=Math.max(0,Math.min(100,v.big/hi*100));
+  var h='<div class="trk"><div class="bar"><i class="'+(v.big>=s.goals[0]?'ok':'')+'" style="width:'+w+'%"></i>';
+  s.goals.forEach(function(g){ h+='<u style="left:'+(g/hi*100)+'%"></u>'; });
+  h+='</div><div class="ticks">';
+  s.goals.forEach(function(g){ h+='<span style="left:'+(g/hi*100)+'%">'+nf(g)+'%</span>'; });
+  return h+'</div></div>';
+}
+/* распределение: ширину меряем к самому частому диапазону, иначе хвост не читается.
+   В масштаб берём и прошлый год — иначе его риска упирается в край полосы и врёт. */
+function dist(s,v){
+  if(!v.sh) return '';
+  var mx=Math.max.apply(null,v.ly?v.sh.concat(v.ly):v.sh)||1;
+  var h='<div class="dist"><div class="h">Из каждых 100 чеков</div>';
+  v.sh.forEach(function(p,i){
+    var big=i>=DB.bigfrom, ly=v.ly?v.ly[i]:null, есть=(ly!==null&&ly!==undefined);
+    h+='<div class="row'+(big?' big':'')+'"><div class="nm">'+DB.bands[i]+'</div>'
+      +'<div class="hb"><i style="width:'+(p/mx*100)+'%"></i>'
+      +(есть?'<u style="left:calc('+Math.min(100,ly/mx*100)+'% - 1px)"></u>':'')
+      +'</div><div class="pc">'+nf(p)+'%'
+      +(есть?'<em class="'+(p>ly?'up':(p<ly?'dn':'fl'))+'">'+(p>ly?'▲':(p<ly?'▼':'='))+'</em>':'')
+      +'</div></div>';
+  });
+  h+='<div class="legend">Жёлтым — крупные чеки, от 20 тыс.'
+    +(v.ly?' Тонкая риска на полосе — тот же период год назад.':'')+'</div>';
+  return h+'</div>';
+}
+function day(s){
+  if(PER!=='d') return '';
+  if(!s.dok) return '<div class="day"><span class="fl">За сегодня чеков пока мало — '
+    +'структура смены появится ближе к обеду.</span></div>';
+  var h='<div class="day">День делают чеки <span class="tag">'+DB.bands[s.dtop]+'</span>';
+  if(s.dmax!==null&&s.dmax!==undefined) h+='<br>Рекорд смены — чек <b>'+DB.bands[s.dmax]+'</b>';
+  return h+'</div>';
+}
+function draw(){
+  goals();
+  var me=my(), h='';
+  DB.stores.forEach(function(s){
+    var v=vals(s);
+    h+='<div class="card'+(s.n===me?' me':'')+'"><div class="top">'
+      +'<div class="medal">'+(s.place&&s.place<=3?MED[s.place-1]:'▫️')+'</div>'
+      +'<div class="who"><b>'+s.n+'</b><span>'
+      +(PER==='m'?'месяц накопительно':'сегодня, с открытия')+'</span></div>'
+      +'<div class="val"><div class="n">'+(v.ok?nf(v.big)+'%':'—')+'</div>'
+      +'<div class="cap">крупных</div>'
+      +'<div class="d">'+delta(v.d,'п.п.')+'</div></div></div>';
+    if(PER==='m') h+=track(s,v);
+    h+=day(s)+dist(s,v)+'</div>';
+  });
+  document.getElementById('list').innerHTML=h;
+  document.getElementById('sub').textContent=
+    DB.month+' · '+(PER==='m'?DB.period+' · год назад '+DB.ly
+                             :DB.today+' · год назад '+DB.todayly);
+  document.getElementById('foot').textContent='Обновлено '+DB.gen
+    +'. Доли чеков по сумме покупки, возвраты не считаем.';
+  var p='';
+  STORES.forEach(function(n){ p+='<button class="'+(n===me?'on':'')+'" data-s="'+n+'">'+n+'</button>'; });
+  document.getElementById('pick').innerHTML=p;
+  Array.prototype.forEach.call(document.querySelectorAll('#pick button'),function(b){
+    b.onclick=function(){ setMy(b.getAttribute('data-s')); };
+  });
+}
+Array.prototype.forEach.call(document.querySelectorAll('#tabs button'),function(b){
+  b.onclick=function(){
+    PER=b.getAttribute('data-p');
+    Array.prototype.forEach.call(document.querySelectorAll('#tabs button'),function(x){
+      x.className=(x===b?'on':'');
+    });
+    if(DB) draw();
+  };
+});
+fetch('bask.json?t='+Date.now()).then(function(r){return r.json();}).then(function(j){
+  DB=j; draw();
+}).catch(function(){
+  document.getElementById('list').innerHTML='<div class="err">Нет связи. Показатель обновится, когда появится интернет.</div>';
+  document.getElementById('sub').textContent='';
+});
+</script></body></html>

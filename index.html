@@ -1,0 +1,685 @@
+<!doctype html>
+<html lang="ru"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Остатки Family Market</title>
+<!-- чтобы страницу можно было закрепить иконкой на домашнем экране телефона -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1F5FA8" media="(prefers-color-scheme:light)">
+<meta name="theme-color" content="#0E141E" media="(prefers-color-scheme:dark)">
+<link rel="icon" href="icons/favicon-64.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-180.png"><!-- iOS manifest не читает -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Остатки FM">
+<style>
+:root{--bg:#F5F7FA;--surface:#FFFFFF;--surface2:#EEF1F6;--ink:#161C26;--muted:#6B7688;--line:#E3E8F0;--accent:#1F5FA8;--good:#177A3A;--zero:#9AA3AF;--chip:#EAF1FB;--shadow:0 1px 2px rgba(20,30,50,.06),0 4px 16px rgba(20,30,50,.05);}
+@media (prefers-color-scheme:dark){:root{--bg:#0E141E;--surface:#161F2C;--surface2:#1E2836;--ink:#E9EDF4;--muted:#93A0B4;--line:#26303F;--accent:#5FA0E6;--good:#49D17F;--zero:#5C6676;--chip:#1B2838;--shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-text-size-adjust:100%;}
+.wrap{max-width:640px;margin:0 auto;padding:0 14px calc(40px + env(safe-area-inset-bottom));}
+header{position:sticky;top:0;z-index:10;background:var(--bg);padding:14px 0 10px;border-bottom:1px solid var(--line);}
+.brand{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+.brand h1{font-size:19px;margin:0;letter-spacing:.2px;}
+.brand .sub{font-size:12px;color:var(--muted);}
+.searchbox{position:relative;}
+#q{width:100%;font-size:17px;padding:14px 44px 14px 16px;border:2px solid var(--accent);border-radius:14px;background:var(--surface);color:var(--ink);outline:none;box-shadow:var(--shadow);}
+#q::placeholder{color:var(--muted);}
+.searchbox .ic{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:18px;opacity:.6;pointer-events:none;}
+.shot{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;margin-top:9px;
+padding:13px 16px;border:0;border-radius:14px;background:var(--accent);color:#fff;font-size:15.5px;
+font-weight:650;cursor:pointer;box-shadow:var(--shadow);font-family:inherit;}
+.shot:active{transform:translateY(1px)}
+.shot[disabled]{opacity:.65}
+.ocr{margin-top:9px;font-size:12.5px;color:var(--muted);text-align:center;line-height:1.5}
+.ocr b{color:var(--ink);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.ocr .bad{color:#B4462E}
+.ocrbar{height:4px;border-radius:3px;background:var(--surface2);overflow:hidden;margin-top:7px}
+.ocrbar i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
+.acts{display:flex;gap:8px;margin-top:9px}
+.acts .shot{margin-top:0;flex:1 1 auto;width:auto;white-space:nowrap}
+.acts .shot.alt{flex:0 0 auto;background:var(--surface2);color:var(--ink);font-weight:600;padding:13px 15px}
+.ok{color:var(--good);}
+/* плашка перехода к заданиям на сборку (отдельная страница pick.html) */
+.jump{display:flex;align-items:center;gap:11px;width:100%;margin:12px 0 2px;padding:14px;
+border-radius:14px;background:var(--accent);color:#fff;border:0;font-family:inherit;
+cursor:pointer;box-shadow:var(--shadow);text-align:left}
+.jump .ttl{flex:1;min-width:0}
+.jump b{display:block;font-size:15.5px;font-weight:700}
+.jump span{font-size:12.5px;opacity:.85}
+.jump .ar{font-size:20px;opacity:.9}
+
+/* полноэкранный сканер: видео + затемнение с прозрачным окном под штрихкод */
+#cams{position:fixed;inset:0;z-index:100;background:#000;display:none;}
+#cams.on{display:block}
+#cams video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+/* затемнение вокруг рамки — гигантской тенью самой рамки, без второго слоя */
+.win{position:absolute;left:7%;right:7%;top:38%;height:22%;border:2px solid rgba(255,255,255,.9);
+border-radius:14px;box-shadow:0 0 0 100vmax rgba(0,0,0,.55);}
+.win i{position:absolute;left:8px;right:8px;top:50%;height:2px;background:#FF3B30;opacity:.85;
+animation:sweep 1.6s ease-in-out infinite}
+@keyframes sweep{0%,100%{transform:translateY(-42px)}50%{transform:translateY(42px)}}
+.tip{position:absolute;left:0;right:0;top:calc(38% - 54px);text-align:center;color:#fff;
+font-size:15px;text-shadow:0 1px 4px rgba(0,0,0,.8);padding:0 20px;line-height:1.45}
+.tip small{display:block;font-size:12.5px;opacity:.8;margin-top:4px}
+.cbtns{position:absolute;left:0;right:0;bottom:calc(26px + env(safe-area-inset-bottom));
+display:flex;gap:10px;justify-content:center;padding:0 16px}
+.cbtn{border:0;border-radius:14px;padding:14px 20px;font-size:15px;font-weight:650;font-family:inherit;
+background:rgba(255,255,255,.16);color:#fff;backdrop-filter:blur(8px);cursor:pointer}
+.cbtn.pri{background:#fff;color:#111}
+.cbtn:active{transform:translateY(1px)}
+.sz.hit{background:var(--chip);border-radius:8px;font-weight:750;margin:0 -6px;padding-left:6px;padding-right:6px}
+/* полоска «закрепить на экране» — показывается только если телефон это умеет и сотрудник не скрыл */
+.pin{display:flex;align-items:center;gap:10px;margin:12px 0 2px;padding:11px 12px;border-radius:14px;
+background:var(--chip);border:1px solid var(--line);}
+.pin .txt{flex:1;min-width:0;font-size:13px;line-height:1.35}
+.pin .txt b{display:block;font-size:14px}
+.pin .txt span{color:var(--muted);font-size:12px}
+.pin button{border:0;font-family:inherit;cursor:pointer;border-radius:10px}
+.pin .go{background:var(--accent);color:#fff;font-size:13.5px;font-weight:650;padding:10px 14px;white-space:nowrap}
+.pin .no{background:transparent;color:var(--muted);font-size:16px;padding:6px 4px;line-height:1}
+.sheet{position:fixed;inset:0;z-index:120;background:rgba(10,14,22,.55);display:flex;align-items:flex-end;justify-content:center}
+.sheetbox{background:var(--surface);color:var(--ink);width:100%;max-width:520px;border-radius:18px 18px 0 0;
+padding:20px 20px calc(22px + env(safe-area-inset-bottom));box-shadow:var(--shadow)}
+.sheetbox h3{margin:0 0 12px;font-size:17px}
+.sheetbox ol{margin:0 0 12px;padding-left:22px;font-size:14.5px;line-height:1.75}
+.sheetbox .note{font-size:12.5px;color:var(--muted);line-height:1.5;margin:0 0 16px}
+.sheetbox .ok{display:block;width:100%;border:0;border-radius:14px;background:var(--accent);color:#fff;
+padding:13px;font-size:15px;font-weight:650;font-family:inherit;cursor:pointer}
+.shr{display:inline-block;background:var(--surface2);border-radius:5px;padding:0 6px}
+#gen.stale{color:#B4462E;font-weight:600}
+#pinfoot{margin-top:10px}
+#pinfoot a{color:var(--accent);text-decoration:none;font-size:12.5px;font-weight:600}
+#pinfoot .done{color:var(--good);font-size:12.5px;font-weight:600}
+.count{font-size:12px;color:var(--muted);margin:10px 2px 2px;}
+.results{display:flex;flex-direction:column;gap:12px;margin-top:6px;}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 14px 12px;box-shadow:var(--shadow);}
+.ctop{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;}
+.nm{font-size:15.5px;font-weight:650;line-height:1.3;}
+.price{white-space:nowrap;font-size:15px;font-weight:750;color:var(--accent);}
+.price small{font-weight:600;font-size:11px;color:var(--muted);}
+.meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:7px 0 11px;font-size:11.5px;color:var(--muted);}
+.art{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--surface2);padding:2px 7px;border-radius:6px;color:var(--ink);letter-spacing:.3px;}
+.clr{background:var(--chip);color:var(--accent);padding:2px 8px;border-radius:6px;font-weight:600;text-transform:capitalize;}
+.stores{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;}
+.st{background:var(--surface2);border-radius:10px;padding:7px 4px;text-align:center;}
+.st .l{font-size:10.5px;color:var(--muted);display:block;margin-bottom:2px;}
+.st .v{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;}
+.st.tot{background:var(--chip);}.st.tot .v{color:var(--accent);}
+.v.z{color:var(--zero);font-weight:600;}
+.sizes{margin-top:11px;border-top:1px dashed var(--line);padding-top:9px;}
+.sz{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:2px 8px;font-size:13px;padding:3px 0;font-variant-numeric:tabular-nums;}
+.sz.h{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--line);padding-bottom:5px;margin-bottom:2px;}
+.sz .szn{font-weight:650;}.sz .z{color:var(--zero);}
+.hint,.empty{text-align:center;color:var(--muted);padding:38px 20px;font-size:14px;line-height:1.55;}
+.hint b{color:var(--ink);}
+.foot{margin-top:22px;text-align:center;font-size:11px;color:var(--muted);}
+mark{background:rgba(31,95,168,.20);color:inherit;border-radius:3px;padding:0 1px;}
+</style></head><body>
+<div class="wrap">
+  <header>
+    <div class="brand"><h1>📦 Остатки Family Market</h1><span class="sub" id="gen">загрузка…</span></div>
+    <div class="searchbox"><input id="q" type="search" inputmode="search" autocomplete="off" enterkeyhint="search" placeholder="Артикул или название — напр. 266-28-S-00002 или майка"><span class="ic">🔎</span></div>
+    <div class="acts">
+      <button class="shot" id="scan">📷 Сканировать штрихкод</button>
+      <button class="shot alt" id="shot" title="Если штрихкод стёрт или оторван">🔤 Бирка</button>
+    </div>
+    <input id="cam" type="file" accept="image/*" capture="environment" style="display:none">
+    <input id="bcfile" type="file" accept="image/*" capture="environment" style="display:none">
+    <div class="ocr" id="ocr"></div>
+    <div class="count" id="count"></div>
+  </header>
+  <button class="jump" onclick="location.href='pick.html'">
+    <span class="ar">📋</span>
+    <span class="ttl"><b>Задания на сборку</b>
+      <span id="jumpsub">открыть актуальный запрос перемещений</span></span>
+    <span class="ar">›</span>
+  </button>
+  <button class="jump" onclick="location.href='upt.html'">
+    <span class="ar">🏆</span>
+    <span class="ttl"><b>Штук в чеке</b>
+      <span id="uptsub">рейтинг магазинов за месяц</span></span>
+    <span class="ar">›</span>
+  </button>
+  <button class="jump" onclick="location.href='bask.html'">
+    <span class="ar">💎</span>
+    <span class="ttl"><b>Крупный чек</b>
+      <span id="basksub">доля покупок от 20 тыс.</span></span>
+    <span class="ar">›</span>
+  </button>
+  <div class="pin" id="pin" style="display:none">
+    <div class="txt"><b>📌 Закрепить на экране телефона</b><span>чтобы не искать ссылку каждый раз</span></div>
+    <button class="go" id="pingo">Закрепить</button>
+    <button class="no" id="pinno" aria-label="Скрыть">✕</button>
+  </div>
+  <div class="results" id="res"></div>
+  <div class="hint" id="hint">Наведите камеру на <b>штрихкод</b> — покажет товар и размер сразу.<br>Или введите <b>артикул</b> либо часть <b>названия</b>: цена и остаток по всем магазинам с разбивкой по размерам.</div>
+  <div class="foot" id="foot"></div>
+  <!-- запасной вход: полоску сверху можно скрыть крестиком, а закрепить нужно уметь всегда -->
+  <div class="foot" id="pinfoot" style="display:none"><a href="#" id="pinlink">📌 Закрепить приложение на экране телефона</a></div>
+</div>
+<div id="cams">
+  <video id="cv" playsinline muted autoplay></video>
+  <div class="win"><i></i></div>
+  <div class="tip" id="tip">Наведите на штрихкод<small>держите 10–15 см, код целиком в рамке</small></div>
+  <div class="cbtns">
+    <button class="cbtn pri" id="cclose">✕ Закрыть</button>
+    <button class="cbtn" id="ctorch" style="display:none">🔦 Свет</button>
+    <button class="cbtn" id="cphoto">📸 Снимком</button>
+  </div>
+</div>
+<div class="sheet" id="ios" style="display:none">
+  <div class="sheetbox">
+    <h3 id="iosh">Как закрепить на экране</h3>
+    <ol id="iosl">
+      <li>Нажмите <b>Поделиться</b> <span class="shr">⬆︎</span> — кнопка внизу экрана</li>
+      <li>Пролистайте список и выберите <b>«На экран „Домой“»</b></li>
+      <li>Нажмите <b>Добавить</b> в правом верхнем углу</li>
+    </ol>
+    <p class="note" id="iosn">Если кнопки «Поделиться» нет — откройте ссылку в Safari. Внутри WhatsApp, Instagram или Telegram закрепить нельзя.</p>
+    <button class="ok" id="iosok">Понятно</button>
+  </div>
+</div>
+<script>
+let ITEMS=[],DB={},HLSIZE=null;
+const nf=n=>Number(n).toLocaleString('ru-RU');
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function hi(txt,q){const t=String(txt);if(!q)return esc(t);const i=t.toLowerCase().indexOf(q.toLowerCase());if(i<0)return esc(t);return esc(t.slice(0,i))+'<mark>'+esc(t.slice(i,i+q.length))+'</mark>'+esc(t.slice(i+q.length));}
+const vcell=v=>'<span class="v'+(v?'':' z')+'">'+v+'</span>';
+function card(o,q){
+  let sizes='';const single=o.z.length===1&&(o.z[0][0]==='б/р'||o.z[0][0]==='ST');
+  if(!single){sizes='<div class="sizes"><div class="sz h"><span>Размер</span><span>Дом</span><span>Дракон</span><span>Подарки</span></div>'+o.z.map(r=>'<div class="sz'+(HLSIZE&&r[0]===HLSIZE?' hit':'')+'"><span class="szn">'+esc(r[0])+'</span><span class="'+(r[1]?'':'z')+'">'+r[1]+'</span><span class="'+(r[2]?'':'z')+'">'+r[2]+'</span><span class="'+(r[3]?'':'z')+'">'+r[3]+'</span></div>').join('')+'</div>';}
+  return '<div class="card"><div class="ctop"><div class="nm">'+hi(o.n,q)+'</div><div class="price">'+(o.p?(o.pm?'<small>от </small>':'')+nf(o.p)+' <small>₸</small>':'<small>цена —</small>')+'</div></div><div class="meta"><span class="art">'+hi(o.a,q)+'</span>'+(o.c?'<span class="clr">🎨 '+esc(o.c)+'</span>':'')+(o.s?'<span>'+esc(o.s)+'</span>':'')+'</div><div class="stores"><div class="st"><span class="l">Дом одежды</span>'+vcell(o.d)+'</div><div class="st"><span class="l">Дракон</span>'+vcell(o.k)+'</div><div class="st"><span class="l">Подарки</span>'+vcell(o.g)+'</div><div class="st tot"><span class="l">Всего</span><span class="v">'+o.t+'</span></div></div>'+sizes+'</div>';
+}
+const res=document.getElementById('res'),hint=document.getElementById('hint'),cnt=document.getElementById('count');
+let tmr;
+function run(){
+  const raw=document.getElementById('q').value.trim();
+  if(raw.length<2){res.innerHTML='';cnt.textContent='';hint.style.display='';return;}
+  hint.style.display='none';
+  const qU=raw.toUpperCase().replace(/\s+/g,''),qL=raw.toLowerCase();const out=[];
+  for(const o of ITEMS){if(o.A.includes(qU)||o.N.includes(qL)){out.push(o);if(out.length>250)break;}}
+  out.sort((a,b)=>b.t-a.t);const CAP=40,shown=out.slice(0,CAP);
+  cnt.textContent=out.length?('найдено '+out.length+(out.length>CAP?' — показаны первые '+CAP+', уточните запрос':'')):'';
+  res.innerHTML=shown.map(o=>card(o,raw)).join('')||'<div class="empty">Ничего не найдено по «'+esc(raw)+'».<br>Проверьте артикул или попробуйте название.</div>';
+}
+fetch('stock.json?v='+Date.now()).then(r=>r.json()).then(db=>{
+  DB=db;
+  ITEMS=Object.entries(db.items).map(([a,v])=>{const d=v.z.reduce((x,r)=>x+r[1],0),k=v.z.reduce((x,r)=>x+r[2],0),g=v.z.reduce((x,r)=>x+r[3],0);return {a,A:a.toUpperCase().replace(/\s+/g,''),n:v.n||'',N:(v.n||'').toLowerCase(),p:v.p,z:v.z,s:v.s,c:v.c,d,k,g,t:d+k+g};});
+  /* офлайн страница показывает последние сохранённые данные — если они старые,
+     об этом надо сказать прямо, иначе сотрудник примет вчерашний остаток за сегодняшний */
+  var g=/^(\d{2})\.(\d{2})\.(\d{4}) (\d{2}):(\d{2})$/.exec(db.gen||''), old=0;
+  if(g)old=(Date.now()-new Date(+g[3],+g[2]-1,+g[1],+g[4],+g[5]))/36e5;
+  var ge=document.getElementById('gen');
+  ge.textContent='🕒 обновлено '+db.gen+' · '+ITEMS.length.toLocaleString('ru')+' артик. · все магазины'
+                 +(old>12?' · ⚠ данные могли устареть':'');
+  if(old>12)ge.className='sub stale';
+  document.getElementById('foot').textContent='Обновлено '+db.gen+' · данные из 1С · остаток и цена: Дом одежды · Дракон · Подарки. Освежается каждый час (08:00–22:00).';
+  document.getElementById('q').addEventListener('input',()=>{HLSIZE=null;clearTimeout(tmr);tmr=setTimeout(run,110);});
+}).catch(e=>{document.getElementById('gen').textContent='ошибка загрузки данных';});
+
+/* ---------- сканер штрихкода (основной способ) ----------
+   Регистр «Штрихкоды» открыли в OData 25.08.2026, и код с этикетки теперь однозначно
+   даёт товар и размер. Раньше приходилось читать OCR-ом ТЕКСТ артикула — распознавание
+   путало O/0 и S/5, из-за чего страница показывала соседний товар.
+   Карта кодов лежит в bc.json и грузится лениво: обычный поиск по артикулу её не тянет.
+   Декодер: нативный BarcodeDetector (Chrome/Android) → иначе ZXing из /scan (офлайн).  */
+var BC=null,BCLOAD=null,ZX=null,RUNSTOP=null;
+function bcSay(h){document.getElementById('ocr').innerHTML=h;}
+function loadBC(){
+  if(BC)return Promise.resolve(BC);
+  if(!BCLOAD)BCLOAD=fetch('bc.json?v='+encodeURIComponent(DB.gen||'')).then(function(r){return r.json();})
+                    .then(function(d){BC=d;return d;});
+  return BCLOAD;
+}
+/* один товар записан по-разному в базе и в сканере: сканеры добавляют AIM-префикс,
+   UPC-A читается как 12 цифр, а в 1С тот же код лежит как 13 с ведущим нулём */
+function bcVariants(code){
+  var c=String(code||'').trim().toUpperCase().replace(/\s/g,'');
+  if(c.charAt(0)===']'&&c.length>3)c=c.slice(3);
+  var v=[c];
+  if(/^[0-9]+$/.test(c)){
+    if(c.length===12)v.push('0'+c);
+    if(c.length===13&&c.charAt(0)==='0')v.push(c.slice(1));
+    if(c.length===8)v.push('00000'+c);
+  }
+  return v;
+}
+function bcLookup(code){
+  if(!BC||!BC.m)return null;
+  var vs=bcVariants(code);
+  for(var i=0;i<vs.length;i++){
+    var hit=BC.m[vs[i]];
+    if(hit){var p=hit.split('.');return {art:BC.a[+p[0]],size:BC.s[+p[1]],code:vs[i]};}
+  }
+  return null;
+}
+function bcDone(code,r){
+  if(r){
+    HLSIZE=r.size;
+    document.getElementById('q').value=r.art; run();
+    var it=DB.items&&DB.items[r.art], row=null;
+    if(it)for(var i=0;i<it.z.length;i++)if(it.z[i][0]===r.size)row=it.z[i];
+    var tot=it?it.z.reduce(function(x,z){return x+z[1]+z[2]+z[3];},0):0;
+    var qty=row?row[1]+row[2]+row[3]:0;
+    var head='<span class="ok">✔</span> <b>'+esc(code)+'</b> → артикул <b>'+esc(r.art)+'</b>'
+            +(r.size&&r.size!=='б/р'?', размер <b>'+esc(r.size)+'</b>':'');
+    /* этикетка на руках, а этого размера уже нет — без явной оговорки сотрудник
+       примет за свой соседний размер из таблицы ниже */
+    if(!tot)      bcSay(head+' — <span class="bad">остатка нет ни в одном магазине</span>');
+    else if(!qty) bcSay(head+' — <span class="bad">этого размера в наличии нет</span>, ниже то, что осталось');
+    else          bcSay(head);
+    try{if(navigator.vibrate)navigator.vibrate(60);}catch(e){}
+  }else{
+    bcSay('<span class="bad">Штрихкод '+esc(code)+' не нашла</span> среди товаров с остатком —'
+         +' возможно, товар закончился или код чужой.<br>Попробуйте кнопку «🔤 Бирка» (чтение артикула текстом).');
+  }
+}
+function loadZX(){
+  if(ZX)return Promise.resolve(ZX);
+  return new Promise(function(res,rej){
+    var s=document.createElement('script'); s.src='scan/zxing.js';
+    s.onload=function(){
+      var h=new Map();
+      h.set(ZXing.DecodeHintType.POSSIBLE_FORMATS,[ZXing.BarcodeFormat.EAN_13,ZXing.BarcodeFormat.EAN_8,
+        ZXing.BarcodeFormat.CODE_128,ZXing.BarcodeFormat.CODE_39,ZXing.BarcodeFormat.ITF,
+        ZXing.BarcodeFormat.UPC_A,ZXing.BarcodeFormat.UPC_E]);
+      h.set(ZXing.DecodeHintType.TRY_HARDER,true);
+      var rd=new ZXing.MultiFormatReader(); rd.setHints(h);
+      ZX=function(cvs){
+        try{
+          var src=new ZXing.HTMLCanvasElementLuminanceSource(cvs);
+          var bmp=new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(src));
+          var r=rd.decode(bmp);
+          return Promise.resolve(r?r.getText():null);
+        }catch(e){ return Promise.resolve(null); }        /* «не нашёл» ZXing бросает исключением */
+        finally{ try{rd.reset();}catch(e2){} }
+      };
+      res(ZX);
+    };
+    s.onerror=function(){rej(new Error('не загрузился сканер'));};
+    document.head.appendChild(s);
+  });
+}
+function makeDecoder(){
+  if(window.BarcodeDetector&&BarcodeDetector.getSupportedFormats){
+    return BarcodeDetector.getSupportedFormats().then(function(fs){
+      var want=['ean_13','ean_8','code_128','code_39','itf','upc_a','upc_e'].filter(function(f){return fs.indexOf(f)>=0;});
+      if(!want.length)throw new Error('нет форматов');
+      var d=new BarcodeDetector({formats:want});
+      return function(cvs){return d.detect(cvs).then(function(r){return r&&r.length?r[0].rawValue:null;});};
+    }).catch(loadZX);
+  }
+  return loadZX();
+}
+function openCam(){
+  var box=document.getElementById('cams'), vid=document.getElementById('cv');
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){camFail(null);return;}
+  bcSay('Открываю камеру…');
+  Promise.all([loadBC(),makeDecoder(),navigator.mediaDevices.getUserMedia({
+      video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false})])
+  .then(function(a){
+    var decode=a[1], stream=a[2];
+    vid.srcObject=stream; box.classList.add('on'); bcSay('');
+    var trk=stream.getVideoTracks()[0], tb=document.getElementById('ctorch'), torch=false;
+    var caps=trk.getCapabilities?trk.getCapabilities():{};
+    if(caps&&caps.torch){                                  /* в зале бирки часто в тени */
+      tb.style.display='';
+      tb.onclick=function(){torch=!torch;trk.applyConstraints({advanced:[{torch:torch}]}).catch(function(){});};
+    }else tb.style.display='none';
+    var cvs=document.createElement('canvas'), ctx=cvs.getContext('2d',{willReadFrequently:true});
+    var last='',same=0,stop=false,pass=0;
+    RUNSTOP=function(){stop=true;try{stream.getTracks().forEach(function(t){t.stop();});}catch(e){}
+                       box.classList.remove('on'); vid.srcObject=null; RUNSTOP=null;};
+    function tick(){
+      if(stop)return;
+      var w=vid.videoWidth,h=vid.videoHeight;
+      if(!w){setTimeout(tick,120);return;}
+      /* обычно смотрим только полосу под рамкой — так быстрее и меньше ложных чтений,
+         но каждый третий проход берём кадр целиком: бирку не всегда кладут в рамку */
+      pass=(pass+1)%3;
+      var sw,sh,sx,sy;
+      if(pass){sw=Math.round(w*0.88);sh=Math.round(h*0.30);sx=(w-sw)>>1;sy=(h-sh)>>1;}
+      else    {sw=w;sh=h;sx=0;sy=0;}
+      var k=Math.min(1.6,1280/sw);
+      cvs.width=Math.round(sw*k); cvs.height=Math.round(sh*k);
+      ctx.drawImage(vid,sx,sy,sw,sh,0,0,cvs.width,cvs.height);
+      decode(cvs).then(function(txt){
+        if(stop)return;
+        if(txt){
+          /* просим два одинаковых чтения подряд — страховка от случайной ошибки декодера */
+          if(txt===last)same++; else {last=txt;same=1;}
+          if(same>=2){var r=bcLookup(txt); if(RUNSTOP)RUNSTOP(); bcDone(txt,r); return;}
+        }
+        setTimeout(tick,70);
+      }).catch(function(){setTimeout(tick,140);});
+    }
+    tick();
+  }).catch(function(e){box.classList.remove('on');camFail(e);});
+}
+function camFail(e){
+  var n=(e&&e.name)||'';
+  var why = n==='NotAllowedError' ? 'Доступ к камере запрещён — разрешите его для этого сайта в настройках браузера.'
+          : n==='NotFoundError'   ? 'Камера не найдена.'
+          : 'Камера недоступна'+(e&&e.message?': '+esc(e.message):'')+'.';
+  bcSay('<span class="bad">'+why+'</span><br>Можно <a href="#" id="lnkphoto">снять штрихкод фото</a>.');
+}
+/* снимок вместо живой камеры: и как запасной путь, и когда код читается тяжело */
+function imgCanvases(file){
+  return new Promise(function(res){
+    var img=new Image(), url=URL.createObjectURL(file);
+    img.onload=function(){
+      var big=Math.max(img.width,img.height), k=Math.min(1,1800/big), out=[];
+      var c=document.createElement('canvas');
+      c.width=Math.round(img.width*k); c.height=Math.round(img.height*k);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height); out.push(c);
+      /* вертикальный штрихкод одномерный декодер не увидит — даём ему повёрнутый кадр */
+      var r=document.createElement('canvas'); r.width=c.height; r.height=c.width;
+      var rx=r.getContext('2d'); rx.translate(r.width/2,r.height/2); rx.rotate(Math.PI/2);
+      rx.drawImage(c,-c.width/2,-c.height/2); out.push(r);
+      URL.revokeObjectURL(url); res(out);
+    };
+    img.onerror=function(){URL.revokeObjectURL(url);res([]);};
+    img.src=url;
+  });
+}
+function scanPhoto(file){
+  bcSay('Читаю штрихкод со снимка…');
+  Promise.all([loadBC(),makeDecoder()]).then(function(a){
+    var dec=a[1];
+    return imgCanvases(file).then(function(cs){
+      return cs.reduce(function(ch,c){return ch.then(function(t){return t||dec(c);});},Promise.resolve(null));
+    });
+  }).then(function(txt){
+    if(txt)bcDone(txt,bcLookup(txt));
+    else bcSay('<span class="bad">Штрихкод на снимке не разобрала.</span> Снимите ближе — код должен занять'
+              +' почти всю ширину кадра, без бликов и наклона.');
+  }).catch(function(e){bcSay('<span class="bad">Не получилось: '+esc(e&&e.message?e.message:e)+'</span>');});
+}
+document.getElementById('scan').addEventListener('click',openCam);
+document.getElementById('cclose').addEventListener('click',function(){if(RUNSTOP)RUNSTOP();bcSay('');});
+document.getElementById('cphoto').addEventListener('click',function(){if(RUNSTOP)RUNSTOP();document.getElementById('bcfile').click();});
+document.getElementById('bcfile').addEventListener('change',function(e){
+  if(e.target.files&&e.target.files[0])scanPhoto(e.target.files[0]);
+  e.target.value='';
+});
+/* ссылку «снять фото» рисуем внутри сообщения — ловим клик делегированием */
+document.getElementById('ocr').addEventListener('click',function(e){
+  if(e.target&&e.target.id==='lnkphoto'){e.preventDefault();document.getElementById('bcfile').click();}
+});
+
+/* ---------- запасной путь: чтение бирки текстом ----------
+   Если штрихкод стёрт, заклеен или бирка оторвана — читаем ТЕКСТ артикула.
+   Способ неточный (OCR путает O/0 и S/5), поэтому он вторичный.
+   Tesseract лежит рядом в /ocr, работает офлайн после первой загрузки.               */
+var TES=null, OCRBUSY=false;
+function ocrSay(h){document.getElementById('ocr').innerHTML=h;}
+function loadTes(){
+  if(TES)return Promise.resolve(TES);
+  return new Promise(function(res,rej){
+    var s=document.createElement('script');
+    s.src='ocr/tesseract.min.js';
+    s.onload=function(){
+      /* пути обязаны быть абсолютными: воркер грузит их из своего контекста,
+         относительный 'ocr/...' там невалиден */
+      var B=new URL('ocr/',location.href).href;
+      Tesseract.createWorker('eng',1,{
+        workerPath:B+'worker.min.js',
+        corePath:B,
+        langPath:B,
+        logger:function(m){
+          if(m.status==='recognizing text'){
+            var b=document.getElementById('ocrb'); if(b)b.style.width=Math.round(m.progress*100)+'%';
+          }
+        }
+      }).then(function(w){
+        return w.setParameters({
+          tessedit_char_whitelist:'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-',
+          tessedit_pageseg_mode:'11'          /* разрозненный текст: артикул может быть где угодно */
+        }).then(function(){TES=w;res(w);});
+      }).catch(rej);
+    };
+    s.onerror=function(){rej(new Error('не загрузился распознаватель'));};
+    document.head.appendChild(s);
+  });
+}
+/* фото бывает разное: снятое с экрана даёт блики и муар, снятое в зале — тени.
+   Одной обработкой все случаи не покрыть, поэтому готовим НЕСКОЛЬКО вариантов кадра
+   и пробуем по очереди, пока не найдём артикул. */
+function draw(img,k){
+  var c=document.createElement('canvas');
+  c.width=Math.round(img.width*k); c.height=Math.round(img.height*k);
+  c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+  return c;
+}
+function grey(c,mode){
+  var x=c.getContext('2d'), d=x.getImageData(0,0,c.width,c.height), a=d.data, i;
+  var mn=255,mx=0;
+  for(i=0;i<a.length;i+=4){var g=a[i]*0.299+a[i+1]*0.587+a[i+2]*0.114;a[i+3+0]=a[i+3];a[i]=g;if(g<mn)mn=g;if(g>mx)mx=g;}
+  var rng=Math.max(1,mx-mn);
+  for(i=0;i<a.length;i+=4){
+    var v=(a[i]-mn)*255/rng;                 /* растягиваем контраст по факту кадра */
+    if(mode==='bin')v=v<128?0:255;
+    else if(mode==='soft')v=v<95?0:(v>185?255:(v-95)*255/90);
+    a[i]=a[i+1]=a[i+2]=v;
+  }
+  x.putImageData(d,0,0); return c;
+}
+function variants(file){
+  return new Promise(function(res){
+    var img=new Image(), url=URL.createObjectURL(file);
+    img.onload=function(){
+      var big=Math.max(img.width,img.height);
+      var k1=Math.min(1,2000/big), k2=Math.min(1.8,2800/big);
+      var out=[grey(draw(img,k1),'soft'), grey(draw(img,k2),'bin'), draw(img,k1)];
+      URL.revokeObjectURL(url); res(out);
+    };
+    img.src=url;
+  });
+}
+/* OCR путает O/0, I/1, S/5 — поэтому проверяем не только точное совпадение */
+function resolveArt(raw){
+  var seen={};
+  function push(v,out){if(v&&!seen[v]){seen[v]=1;out.push(v);}}
+  var cand=[];
+  var p=raw.split('-');
+  if(p.length!==4)return [];
+  var num=function(t){return t.replace(/O/g,'0').replace(/I/g,'1').replace(/L/g,'1')
+                        .replace(/S/g,'5').replace(/B/g,'8').replace(/Z/g,'2').replace(/[^0-9]/g,'');};
+  var a=num(p[0]), b=num(p[1]), d=num(p[3]);
+  var letters=[p[2].replace(/0/g,'D').replace(/5/g,'S').replace(/1/g,'L').replace(/[^A-Z]/g,''),'D','S','L'];
+  for(var li=0;li<letters.length;li++){
+    var L=letters[li]; if(!L)continue;
+    push(a+'-'+b+'-'+L+'-'+d,cand);
+    if(d.length<5)push(a+'-'+b+'-'+L+'-'+('00000'+d).slice(-5),cand);
+    if(d.length>5)push(a+'-'+b+'-'+L+'-'+d.slice(-5),cand);
+  }
+  return cand.filter(function(v){return DB.items&&DB.items[v];});
+}
+function findArt(txt){
+  var re=/(\d{1,4})\s*[-–—]\s*(\d{1,3})\s*[-–—]\s*([A-Z0-9])\s*[-–—]\s*(\d{3,6})/g, m, hits=[];
+  txt=(txt||'').toUpperCase();
+  while((m=re.exec(txt))!==null){
+    var got=resolveArt(m[1]+'-'+m[2]+'-'+m[3]+'-'+m[4]);
+    for(var i=0;i<got.length;i++)if(hits.indexOf(got[i])<0)hits.push(got[i]);
+  }
+  return hits;
+}
+function scan(file){
+  if(OCRBUSY)return; OCRBUSY=true;
+  document.getElementById('shot').disabled=true;
+  ocrSay('Загружаю распознаватель…<div class="ocrbar"><i id="ocrb"></i></div>');
+  var lastTxt='';
+  loadTes().then(function(w){
+    ocrSay('Читаю бирку…<div class="ocrbar"><i id="ocrb"></i></div>');
+    return variants(file).then(function(cs){
+      /* проходы по очереди: мягкий контраст -> жёсткое ч/б с увеличением -> исходный кадр */
+      return cs.reduce(function(chain,c,idx){
+        return chain.then(function(hits){
+          if(hits&&hits.length)return hits;
+          if(idx)ocrSay('Пробую ещё раз, вариант '+(idx+1)+'…<div class="ocrbar"><i id="ocrb"></i></div>');
+          return w.recognize(c).then(function(r){
+            lastTxt=r.data.text||lastTxt;
+            return findArt(r.data.text);
+          });
+        });
+      },Promise.resolve([]));
+    });
+  }).then(function(hits){
+    if(hits.length){
+      HLSIZE=null;                                  /* размер по тексту бирки не определить */
+      document.getElementById('q').value=hits[0];
+      run();
+      ocrSay('Распознала артикул <b>'+hits[0]+'</b>'+(hits.length>1?' (ещё варианты: '+hits.slice(1).join(', ')+')':'')
+             +'<br><small>чтение текстом бывает неточным — если товар не тот, отсканируйте штрихкод</small>');
+    }else{
+      var raw=lastTxt.replace(/\s+/g,' ').trim().slice(0,70);
+      ocrSay('<span class="bad">Артикул на фото не разобрала.</span> Снимите бирку крупнее и ровно, '
+             +'без бликов — строка с артикулом должна попасть в кадр целиком.'
+             +(raw?'<br>увидела: '+raw:''));
+    }
+  }).catch(function(e){
+    ocrSay('<span class="bad">Не получилось: '+(e&&e.message?e.message:e)+'</span>');
+  }).then(function(){
+    OCRBUSY=false; document.getElementById('shot').disabled=false;
+  });
+}
+document.getElementById('shot').addEventListener('click',function(){document.getElementById('cam').click();});
+document.getElementById('cam').addEventListener('change',function(e){
+  if(e.target.files&&e.target.files[0])scan(e.target.files[0]);
+  e.target.value='';
+});
+
+/* ---------- закрепление на домашнем экране ----------
+   Ссылка теряется в переписках, поэтому страница ставится как приложение:
+   Android умеет это сам (beforeinstallprompt), iOS — только руками через «Поделиться»,
+   программного способа там нет, поэтому показываем короткую инструкцию.            */
+var DEFPROMPT=null, PINBOX=document.getElementById('pin');
+function ls(k,v){try{return v===undefined?localStorage.getItem(k):localStorage.setItem(k,v);}catch(e){return null;}}
+function standalone(){
+  try{return matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;}catch(e){return false;}
+}
+function isIOS(){
+  return /iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+}
+/* ?pin=1 в адресе принудительно показывает плашку — чтобы можно было показать её
+   сотруднику или проверить, даже когда приложение уже стоит */
+var PINFORCE=/[?&]pin=1/.test(location.search);
+function pinShow(){
+  if(PINFORCE){PINBOX.style.display='';return;}
+  if(standalone())return;                       /* открыто из иконки — уже закреплено, не мешаем */
+  var hid=+(ls('pinhide')||0);
+  if(hid&&Date.now()-hid<7*864e5)return;        /* скрыли крестиком — не спрашиваем неделю */
+  /* Показываем ВСЕГДА, а не только когда браузер прислал сигнал установки: сигнала нет
+     ни у Safari, ни у Firefox, ни когда приложение уже стоит — и сотрудник просто
+     не находил кнопку. Если сигнала нет, по нажатию открываем инструкцию руками. */
+  PINBOX.style.display='';
+}
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();DEFPROMPT=e;pinShow();});
+window.addEventListener('appinstalled',function(){PINBOX.style.display='none';DEFPROMPT=null;});
+document.getElementById('pinno').addEventListener('click',function(){
+  ls('pinhide',String(Date.now())); PINBOX.style.display='none';
+});
+function pinGo(){
+  if(DEFPROMPT){
+    DEFPROMPT.prompt();
+    /* Android заворачивает такие «приложения» в ярлык-APK, и Play Защита иногда ругается
+       на него словами «подозрительное приложение». Предупреждаем заранее, иначе сотрудник
+       решит, что ссылка опасная, и бросит установку. */
+    bcSay('Если Android напишет «подозрительное приложение» — нажмите <b>Подробнее</b> → '
+         +'<b>Всё равно установить</b>. Так Android помечает любой ярлык сайта, это не вирус. '
+         +'Надёжнее всего ставить из браузера <b>Chrome</b>.');
+    DEFPROMPT.userChoice.then(function(c){if(c&&c.outcome==='accepted')PINBOX.style.display='none';DEFPROMPT=null;});
+  }else{
+    /* браузер не ставит сам (Safari, Firefox, встроенные браузеры соцсетей) или приложение
+       уже стоит — объясняем руками. Текст пишем ВСЕГДА под текущий телефон, а не только
+       один раз: иначе iPhone мог бы получить инструкцию для Android. */
+    var head=document.getElementById('iosh'), list=document.getElementById('iosl'), note=document.getElementById('iosn');
+    if(isIOS()){
+      head.textContent='Как закрепить на iPhone';
+      list.innerHTML=
+        '<li>Нажмите <b>Поделиться</b> <span class="shr">⬆︎</span> — квадратик со стрелкой вверх внизу экрана</li>'
+       +'<li>Пролистайте список и выберите <b>«На экран „Домой“»</b></li>'
+       +'<li>Нажмите <b>Добавить</b> в правом верхнем углу</li>';
+      note.innerHTML=
+        'Кнопки «Поделиться» нет? Значит, страница открыта внутри WhatsApp или Instagram — '
+       +'откройте ссылку в <b>Safari</b>.<br><br>Если пункта «На экран „Домой“» нет — скорее всего, '
+       +'приложение уже стоит: поищите на экране синюю иконку со штрихкодом и надписью «FM».';
+    }else{
+      head.textContent='Как закрепить на экране';
+      list.innerHTML=
+        '<li>Откройте <b>меню браузера</b> — три точки в углу</li>'
+       +'<li>Выберите <b>«Добавить на главный экран»</b> (или «Установить приложение»)</li>'
+       +'<li>Подтвердите — иконка встанет на экран</li>';
+      note.innerHTML=
+        'Если появится предупреждение <b>Play Защиты</b> про «подозрительное приложение» — нажмите '
+       +'<b>Подробнее</b> → <b>Всё равно установить</b>: так Android помечает любой ярлык сайта. '
+       +'Проще всего ставить из <b>Chrome</b>, внутри WhatsApp или Instagram закрепить нельзя.'
+       +'<br><br>Если такого пункта в меню нет — скорее всего, приложение уже стоит: поищите на экране '
+       +'телефона синюю иконку со штрихкодом и надписью «FM».';
+    }
+    document.getElementById('ios').style.display='flex';
+  }
+}
+document.getElementById('pingo').addEventListener('click',pinGo);
+document.getElementById('pinlink').addEventListener('click',function(e){e.preventDefault();pinGo();});
+document.getElementById('iosok').addEventListener('click',function(){document.getElementById('ios').style.display='none';});
+document.getElementById('ios').addEventListener('click',function(e){if(e.target===this)this.style.display='none';});
+/* Запущено из иконки — вместо предложения закрепить показываем, что уже закреплено:
+   иначе исчезнувшая плашка читается как «кнопка пропала». */
+document.getElementById('pinfoot').style.display='';
+if(standalone())
+  document.getElementById('pinfoot').innerHTML='<span class="done">✔ Приложение закреплено на экране телефона</span>';
+pinShow();
+setTimeout(pinShow,1800);                       /* Chrome шлёт beforeinstallprompt не сразу */
+if('serviceWorker' in navigator)
+  window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});
+
+
+/* подпись на плашке заданий: сколько позиций ещё не пройдено.
+   Цифры берём из ОБЩЕЙ таблицы, а не из памяти телефона: иначе каждый видел бы
+   только свою работу и не видел бы, сколько уже собрали остальные. */
+(function(){
+  fetch('https://script.google.com/macros/s/AKfycbxVqw8WMy9LuGJz0kVmDVpMu3I4UcTlIbSvqLp_o3W_erCqEF6pYnAal4QKkS4-A_0y/exec?t='+Date.now()).then(function(r){return r.json();}).then(function(j){
+    if(!j||!j.ok||!j.tasks||!j.tasks.length) return;
+    var left=0, tasks=0;
+    j.tasks.forEach(function(t){
+      var done=(typeof t.done==='number')?t.done:0;
+      var l=t.lines-done; if(l>0){ left+=l; tasks++; }
+    });
+    var el=document.getElementById('jumpsub'); if(!el) return;
+    var w=tasks===1?'задании':'заданиях';
+    el.textContent = left>0 ? ('осталось собрать '+left+' позиц. в '+tasks+' '+w)
+                            : 'все задания собраны';
+  }).catch(function(){});
+  fetch('upt.json?t='+Date.now()).then(function(r){return r.json();}).then(function(j){
+    var el=document.getElementById('uptsub'); if(!el||!j||!j.stores||!j.stores.length) return;
+    var me=''; try{ me=localStorage.getItem('fm_store')||''; }catch(e){}
+    function nf(x){ return String(x.toFixed(2)).replace('.',','); }
+    var mine=null; j.stores.forEach(function(s){ if(s.n===me) mine=s; });
+    if(mine&&mine.upt){
+      el.textContent=j.month+': у вас '+nf(mine.upt)
+        +(mine.du?' · сегодня '+nf(mine.du):'')
+        +(mine.upt>=3.5?' · цель взята':' · до цели '+nf(3.5-mine.upt));
+    }else{
+      el.textContent=j.month+': впереди '+j.stores[0].n+' — '+nf(j.stores[0].upt)+' · цель 3,5';
+    }
+  }).catch(function(){});
+  /* подпись плашки «Крупный чек»: доля покупок от 20 тыс. Первым в bask.json идёт
+     тот, кто СИЛЬНЕЕ ВЫРОС к прошлому году, а не у кого доля выше. */
+  fetch('bask.json?t='+Date.now()).then(function(r){return r.json();}).then(function(j){
+    var el=document.getElementById('basksub'); if(!el||!j||!j.stores||!j.stores.length) return;
+    var me=''; try{ me=localStorage.getItem('fm_store')||''; }catch(e){}
+    function nf(x){ return String(Number(x).toFixed(1)).replace('.',','); }
+    function pp(d){ return (d>0?'+':(d<0?'−':''))+nf(Math.abs(d))+' п.п.'; }
+    var mine=null; j.stores.forEach(function(s){ if(s.n===me) mine=s; });
+    function хвост(x){ return (x.d===null||x.d===undefined)?'':' · '+pp(x.d)+' к прошлому году'; }
+    if(mine&&mine.big!==null&&mine.big!==undefined){
+      el.textContent=j.month+': у вас '+nf(mine.big)+'% крупных'+хвост(mine);
+    }else{
+      var t=j.stores[0];
+      el.textContent=j.month+': впереди '+t.n+' — '+nf(t.big)+'%'+хвост(t);
+    }
+  }).catch(function(){});
+})();
+</script></body></html>
