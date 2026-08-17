@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="ru"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>По поставщику · Family Market</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon-64.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-180.png">
+<meta name="theme-color" content="#1F5FA8" media="(prefers-color-scheme:light)">
+<meta name="theme-color" content="#0E141E" media="(prefers-color-scheme:dark)">
+<style>
+:root{--bg:#F5F7FA;--surface:#FFFFFF;--surface2:#EEF1F6;--ink:#161C26;--muted:#6B7688;--line:#E3E8F0;--accent:#1F5FA8;--good:#177A3A;--zero:#9AA3AF;--chip:#EAF1FB;--shadow:0 1px 2px rgba(20,30,50,.06),0 4px 16px rgba(20,30,50,.05);}
+@media (prefers-color-scheme:dark){:root{--bg:#0E141E;--surface:#161F2C;--surface2:#1E2836;--ink:#E9EDF4;--muted:#93A0B4;--line:#26303F;--accent:#5FA0E6;--good:#49D17F;--zero:#5C6676;--chip:#1B2838;--shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-text-size-adjust:100%;}
+.wrap{max-width:640px;margin:0 auto;padding:0 14px calc(40px + env(safe-area-inset-bottom));}
+header{position:sticky;top:0;z-index:10;background:var(--bg);padding:12px 0 10px;border-bottom:1px solid var(--line);}
+.navrow{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.back{display:inline-flex;align-items:center;gap:5px;border:0;background:none;color:var(--accent);font-size:14.5px;font-weight:600;padding:2px 0;cursor:pointer;font-family:inherit;}
+h1{font-size:19px;margin:6px 0 10px;letter-spacing:.2px;overflow:hidden;text-overflow:ellipsis;}
+.sub{font-size:12px;color:var(--muted);}
+#gen.stale{color:#B4462E;font-weight:600}
+.searchbox{position:relative;}
+#q{width:100%;font-size:17px;padding:13px 42px 13px 15px;border:2px solid var(--accent);border-radius:14px;background:var(--surface);color:var(--ink);outline:none;box-shadow:var(--shadow);font-family:inherit;}
+#q::placeholder{color:var(--muted);}
+.searchbox .ic{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:18px;opacity:.6;pointer-events:none;}
+.count{font-size:12px;color:var(--muted);margin:9px 2px 0;}
+.tot{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:12px 0 4px;}
+.tot div{min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 6px;text-align:center;box-shadow:var(--shadow);}
+.tot b{display:block;font-size:17px;font-weight:800;font-variant-numeric:tabular-nums;}
+.tot span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;}
+.tot .hi{background:var(--chip);}.tot .hi b{color:var(--accent);}
+.money{font-size:12.5px;color:var(--muted);margin:6px 2px 0;}
+.money b{color:var(--ink);font-weight:700;}
+/* фильтры «пол / сезон» и переключатель разбивки */
+.chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:8px 0 0;}
+.chips>b{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;font-weight:700;margin-right:2px;}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;
+padding:6px 11px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+.chip small{font-weight:600;opacity:.65;margin-left:3px;}
+.srow{display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 13px;margin:9px 0;box-shadow:var(--shadow);cursor:pointer;font-family:inherit;color:var(--ink);}
+.srow .nm{flex:1;min-width:0;}
+.srow .nm b{display:block;font-size:15.5px;font-weight:700;line-height:1.3;}
+.srow .nm span{display:block;font-size:12px;color:var(--muted);margin-top:2px;}
+.srow .qty{text-align:right;white-space:nowrap;}
+.srow .qty b{display:block;font-size:16px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums;}
+.srow .qty span{font-size:10.5px;color:var(--muted);}
+.srow .ar{font-size:18px;color:var(--muted);}
+.grp{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin:9px 0;box-shadow:var(--shadow);overflow:hidden;}
+.grp>.gh{display:flex;align-items:center;gap:10px;padding:11px 13px;cursor:pointer;}
+.grp>.gh .nm{flex:1;min-width:0;font-size:15px;font-weight:700;}
+.grp>.gh .nm span{display:block;font-size:11.5px;color:var(--muted);font-weight:500;margin-top:2px;}
+.grp>.gh .qty{white-space:nowrap;font-size:15px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums;}
+.grp>.gh .ar{font-size:13px;color:var(--muted);transition:transform .15s;}
+.grp.on>.gh .ar{transform:rotate(90deg);}
+.grp>.inner{display:none;border-top:1px solid var(--line);padding:6px 10px 9px;}
+.grp.on>.inner{display:block;}
+/* подкатегория: «Зима · Женское» внутри группы */
+.sub2{background:var(--surface2);border-radius:11px;margin:6px 0;overflow:hidden;}
+.sub2>.sh{display:flex;align-items:center;gap:9px;padding:9px 10px;cursor:pointer;}
+.sub2>.sh .ar{font-size:12px;color:var(--muted);transition:transform .15s;}
+.sub2.on>.sh .ar{transform:rotate(90deg);}
+.sub2>.sh .nm{flex:1;min-width:0;font-size:13.5px;font-weight:700;}
+.sub2>.sh .nm span{display:block;font-size:11px;color:var(--muted);font-weight:500;margin-top:2px;}
+.sub2>.sh .qty{white-space:nowrap;font-size:14px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums;}
+.sub2>.items{display:none;padding:0 10px 6px;}
+.sub2.on>.items{display:block;}
+.it{padding:10px 0 9px;border-bottom:1px dashed var(--line);cursor:pointer;}
+.it:last-child{border-bottom:0;}
+.ctop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;}
+.nm2{font-size:14.5px;font-weight:650;line-height:1.3;}
+.price{white-space:nowrap;font-size:14px;font-weight:750;color:var(--accent);}
+.price small{font-weight:600;font-size:10.5px;color:var(--muted);}
+.meta{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin:6px 0 8px;font-size:11.5px;color:var(--muted);}
+.art{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--surface);padding:2px 7px;border-radius:6px;color:var(--ink);letter-spacing:.3px;}
+.clr{background:var(--chip);color:var(--accent);padding:2px 8px;border-radius:6px;font-weight:600;text-transform:capitalize;}
+.stores{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.st{background:var(--surface);border-radius:9px;padding:6px 4px;text-align:center;}
+.st .l{font-size:10px;color:var(--muted);display:block;margin-bottom:2px;}
+.st .v{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;}
+.st.tot2{background:var(--chip);}.st.tot2 .v{color:var(--accent);}
+.v.z{color:var(--zero);font-weight:600;}
+/* лента размеров: сразу видно, ЧТО именно составляет общий остаток —
+   «185 шт» без этого ничего не говорят байеру, а «33:7 · 34:1» говорят всё */
+.szr{display:flex;flex-wrap:wrap;gap:5px;margin:0 0 8px;}
+.szc{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:3px 7px;
+font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap;}
+/* количество — отдельной плашкой: «23 1» иначе читается как «231» */
+.szc b{display:inline-block;margin-left:6px;padding:0 5px;border-radius:6px;background:var(--chip);
+color:var(--accent);font-weight:800;}
+.szc.one{border-color:#D8A15E;}          /* размера остался 1 — ряд рассыпался */
+.szc.one b{background:#FBEFDD;color:#B87400;}
+@media (prefers-color-scheme:dark){.szc.one{border-color:#7A5A2A;}.szc.one b{background:#3A2D18;color:#E0A040;}}
+.sizes{margin-top:9px;border-top:1px dashed var(--line);padding-top:8px;}
+.sz{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:2px 8px;font-size:12.5px;padding:3px 0;font-variant-numeric:tabular-nums;}
+.sz.h{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--line);padding-bottom:5px;margin-bottom:2px;}
+.sz .szn{font-weight:650;}.sz .z{color:var(--zero);}
+.hint,.empty{text-align:center;color:var(--muted);padding:34px 18px;font-size:14px;line-height:1.55;}
+.hint b{color:var(--ink);}
+.foot{margin-top:20px;text-align:center;font-size:11px;color:var(--muted);line-height:1.5;}
+mark{background:rgba(31,95,168,.20);color:inherit;border-radius:3px;padding:0 1px;}
+</style></head><body>
+<div class="wrap">
+  <header>
+    <div class="navrow">
+      <button class="back" id="back">‹ Назад</button>
+      <span class="sub" id="gen">загрузка…</span>
+    </div>
+    <h1 id="ttl">🧵 По поставщику</h1>
+    <div class="searchbox"><input id="q" type="search" inputmode="search" autocomplete="off" enterkeyhint="search" placeholder="Поставщик — напр. Гуля"><span class="ic">🔎</span></div>
+    <div class="count" id="count"></div>
+  </header>
+  <div class="tot" id="tot" style="display:none"></div>
+  <div class="money" id="money" style="display:none"></div>
+  <div id="filters"></div>
+  <div id="body"></div>
+  <div class="foot" id="foot"></div>
+</div>
+<script>
+var DB=null,SUPS=[],BYNAME={},CUR=null,OPEN={},OPENS={},SEEN={};
+var MODE='sg',FG='',FS='';          /* разбивка: сезон+пол / пол / сезон; фильтры пола и сезона */
+var NOG='Пол не указан',NOS='Сезон не указан';
+var nf=function(n){return Number(n).toLocaleString('ru-RU');};
+function esc(s){return String(s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+function hi(txt,q){var t=String(txt);if(!q)return esc(t);var i=t.toLowerCase().indexOf(q.toLowerCase());if(i<0)return esc(t);return esc(t.slice(0,i))+'<mark>'+esc(t.slice(i,i+q.length))+'</mark>'+esc(t.slice(i+q.length));}
+function money(v){v=Math.round(v);return v>=1e6?(v/1e6).toFixed(1).replace('.',',')+' млн ₸':nf(v)+' ₸';}
+var vcell=function(v){return '<span class="v'+(v?'':' z')+'">'+v+'</span>';};
+var q=document.getElementById('q'),body=document.getElementById('body'),cnt=document.getElementById('count'),
+    totEl=document.getElementById('tot'),moneyEl=document.getElementById('money'),ttl=document.getElementById('ttl'),
+    filtEl=document.getElementById('filters');
+
+/* собираем поставщиков из того же stock.json: имя поставщика, товарная группа, пол и сезон
+   лежат номерами в общих списках (sups/grps/gens/seas) — так файл легче на сотни килобайт */
+function build(db){
+  var names=db.sups||[],grps=db.grps||[],gens=db.gens||[],seas=db.seas||[],map={};
+  Object.keys(db.items).forEach(function(a){
+    var v=db.items[a],d=0,k=0,g=0;
+    for(var i=0;i<v.z.length;i++){d+=v.z[i][1];k+=v.z[i][2];g+=v.z[i][3];}
+    var t=d+k+g; if(!t)return;
+    var nm=(typeof v.s==='number'?names[v.s]:v.s)||'(не указан)';
+    var gr=(typeof v.g==='number'?grps[v.g]:v.g)||'Прочее';
+    var s=map[nm]||(map[nm]={n:nm,N:nm.toLowerCase(),arts:0,d:0,k:0,g:0,t:0,sum:0,items:[]});
+    s.arts++;s.d+=d;s.k+=k;s.g+=g;s.t+=t;s.sum+=t*(v.p||0);
+    s.items.push({a:a,A:a.toUpperCase().replace(/\s+/g,''),n:v.n||'',N:(v.n||'').toLowerCase(),
+                  p:v.p||0,pm:v.pm,c:v.c,z:v.z,gr:gr,GR:gr.toLowerCase(),
+                  ge:(typeof v.x==='number'?gens[v.x]:'')||'',se:(typeof v.w==='number'?seas[v.w]:'')||'',
+                  d:d,k:k,g:g,t:t});
+  });
+  SUPS=Object.keys(map).map(function(k){return map[k];}).sort(function(x,y){return y.t-x.t;});
+  BYNAME={};SUPS.forEach(function(s){BYNAME[s.n]=s;s.items.sort(function(x,y){return y.t-x.t;});});
+}
+
+/* ---------- список поставщиков ---------- */
+function listView(){
+  var raw=q.value.trim(),ql=raw.toLowerCase();
+  var out=SUPS.filter(function(s){return !ql||s.N.indexOf(ql)>=0;});
+  cnt.textContent=raw?(out.length?'найдено '+out.length:'')
+                     :('всего '+SUPS.length+' поставщиков · остаток '+nf(SUPS.reduce(function(x,s){return x+s.t;},0))+' шт');
+  var CAP=60,shown=out.slice(0,CAP);
+  body.innerHTML=shown.map(function(s){
+    return '<button class="srow" onclick="go(&quot;'+encodeURIComponent(s.n)+'&quot;)">'+
+      '<span class="nm"><b>'+hi(s.n,raw)+'</b><span>'+nf(s.arts)+' артик. · Дом '+nf(s.d)+' · Дракон '+nf(s.k)+' · Подарки '+nf(s.g)+'</span></span>'+
+      '<span class="qty"><b>'+nf(s.t)+'</b><span>шт · '+money(s.sum)+'</span></span>'+
+      '<span class="ar">›</span></button>';
+  }).join('')||'<div class="empty">Поставщик «'+esc(raw)+'» не найден.<br>Попробуйте часть имени — напр. «гул».</div>';
+  if(out.length>CAP)body.innerHTML+='<div class="count">показаны первые '+CAP+' — уточните запрос</div>';
+}
+
+/* ---------- карточка поставщика: группа -> подкатегория (сезон/пол) -> товар -> размеры ---------- */
+function itemHTML(it,raw){
+  var single=it.z.length===1&&(it.z[0][0]==='б/р'||it.z[0][0]==='ST');
+  var op=!!SEEN[it.a];
+  var sizes=(single||!op)?'':'<div class="sizes"><div class="sz h"><span>Размер</span><span>Дом</span><span>Дракон</span><span>Подарки</span></div>'+
+    it.z.map(function(r){return '<div class="sz"><span class="szn">'+esc(r[0])+'</span><span class="'+(r[1]?'':'z')+'">'+r[1]+'</span><span class="'+(r[2]?'':'z')+'">'+r[2]+'</span><span class="'+(r[3]?'':'z')+'">'+r[3]+'</span></div>';}).join('')+'</div>';
+  /* тапать можно по всей карточке: подпись «размеров: N — показать» стоит под названием,
+     и сотрудник жмёт именно в неё, а не в заголовок */
+  return '<div class="it" onclick="tgi(&quot;'+encodeURIComponent(it.a)+'&quot;)"><div class="ctop">'+
+    '<div class="nm2">'+hi(it.n,raw)+'</div>'+
+    '<div class="price">'+(it.p?(it.pm?'<small>от </small>':'')+nf(it.p)+' <small>₸</small>':'<small>цена —</small>')+'</div></div>'+
+    '<div class="meta"><span class="art">'+hi(it.a,raw)+'</span>'+(it.c?'<span class="clr">🎨 '+esc(it.c)+'</span>':'')+
+    (single?'':'<span>'+(op?'▾ скрыть по магазинам':'▸ размеры по магазинам')+'</span>')+'</div>'+
+    (single?'':(function(){
+      /* «остался 1» подсвечиваем только там, где ряд НЕРОВНЫЙ: у детской обуви по одной паре
+         на размер — это нормальный ряд, и красить его тревожным цветом значит врать */
+      var mx=0; it.z.forEach(function(r){var т=r[1]+r[2]+r[3]; if(т>mx)mx=т;});
+      return '<div class="szr">'+it.z.map(function(r){var т=r[1]+r[2]+r[3];
+        return '<span class="szc'+(т===1&&mx>1?' one':'')+'">'+esc(r[0])+'<b>'+т+'</b></span>';}).join('')+'</div>';
+    })())+
+    '<div class="stores"><div class="st"><span class="l">Дом одежды</span>'+vcell(it.d)+'</div>'+
+    '<div class="st"><span class="l">Дракон</span>'+vcell(it.k)+'</div>'+
+    '<div class="st"><span class="l">Подарки</span>'+vcell(it.g)+'</div>'+
+    '<div class="st tot2"><span class="l">Всего</span><span class="v">'+it.t+'</span></div></div>'+sizes+'</div>';
+}
+/* по какой подкатегории раскладываем товар внутри группы */
+function subKey(i){
+  var g=i.ge||NOG,s=i.se||NOS;
+  return MODE==='g'?g:(MODE==='s'?s:(s+' · '+g));
+}
+function chipsHTML(s){
+  /* считаем по ВСЕМ товарам поставщика: иначе выбранный фильтр прячет сам себя */
+  var gc={},sc={};
+  s.items.forEach(function(i){var g=i.ge||NOG,x=i.se||NOS;
+    gc[g]=(gc[g]||0)+i.t; sc[x]=(sc[x]||0)+i.t;});
+  function row(ttl,map,cur,fn,order){
+    var ks=Object.keys(map).sort(function(a,b){
+      var ia=order.indexOf(a),ib=order.indexOf(b);
+      return (ia<0?9:ia)-(ib<0?9:ib);});
+    if(ks.length<2)return '';      /* делить нечего — не показываем пустой фильтр */
+    return '<div class="chips"><b>'+ttl+'</b>'+
+      '<button class="chip'+(cur?'':' on')+'" onclick="'+fn+'(&quot;&quot;)">Все</button>'+
+      ks.map(function(k){return '<button class="chip'+(cur===k?' on':'')+'" onclick="'+fn+'(&quot;'+encodeURIComponent(k)+'&quot;)">'+
+        esc(k)+'<small>'+nf(map[k])+'</small></button>';}).join('')+'</div>';
+  }
+  return row('Пол',gc,FG,'setFG',['Женское','Мужское','Детское','Унисекс',NOG])+
+         row('Сезон',sc,FS,'setFS',['Зима','Демисезон','Лето',NOS])+
+         '<div class="chips"><b>Разбивка</b>'+
+         [['sg','Сезон + пол'],['s','Сезон'],['g','Пол'],['','Без разбивки']].map(function(m){
+           return '<button class="chip'+(MODE===m[0]?' on':'')+'" onclick="setMode(&quot;'+m[0]+'&quot;)">'+m[1]+'</button>';
+         }).join('')+'</div>';
+}
+function detailView(){
+  var s=CUR,raw=q.value.trim(),ql=raw.toLowerCase(),qU=raw.toUpperCase().replace(/\s+/g,'');
+  var its=s.items.filter(function(i){
+    if(FG&&(i.ge||NOG)!==FG)return false;
+    if(FS&&(i.se||NOS)!==FS)return false;
+    return !raw||i.N.indexOf(ql)>=0||i.A.indexOf(qU)>=0||i.GR.indexOf(ql)>=0;});
+  var G={};its.forEach(function(i){
+    var g=G[i.gr]||(G[i.gr]={n:i.gr,arts:0,d:0,k:0,g:0,t:0,its:[],sub:{}});
+    g.arts++;g.d+=i.d;g.k+=i.k;g.g+=i.g;g.t+=i.t;g.its.push(i);
+    if(MODE){var sk=subKey(i),b=g.sub[sk]||(g.sub[sk]={n:sk,se:i.se||NOS,ge:i.ge||NOG,arts:0,d:0,k:0,g:0,t:0,its:[]});
+             b.arts++;b.d+=i.d;b.k+=i.k;b.g+=i.g;b.t+=i.t;b.its.push(i);}
+  });
+  var gs=Object.keys(G).map(function(k){return G[k];}).sort(function(x,y){return y.t-x.t;});
+  var T={d:0,k:0,g:0,t:0,sum:0,arts:its.length};
+  its.forEach(function(i){T.d+=i.d;T.k+=i.k;T.g+=i.g;T.t+=i.t;T.sum+=i.t*i.p;});
+  totEl.style.display='';moneyEl.style.display='';
+  totEl.innerHTML='<div><b>'+nf(T.d)+'</b><span>Дом одежды</span></div>'+
+                  '<div><b>'+nf(T.k)+'</b><span>Дракон</span></div>'+
+                  '<div><b>'+nf(T.g)+'</b><span>Подарки</span></div>'+
+                  '<div class="hi"><b>'+nf(T.t)+'</b><span>всего шт</span></div>';
+  moneyEl.innerHTML='<b>'+nf(T.arts)+'</b> артик. · <b>'+nf(gs.length)+'</b> тов. групп · в рознице на <b>'+money(T.sum)+'</b>';
+  filtEl.innerHTML=chipsHTML(s);
+  cnt.textContent=raw?('в подборе '+its.length+' артик.'+(WIDE?' — жмите на группу, всё сразу не раскрываем':''))
+                     :'нажмите на группу — раскроется разбивка';
+  /* одна группа (или идёт поиск) — прятать нечего, открываем сразу. Но если в подборе
+     сотни позиций (крупный поставщик, короткий запрос), рисовать их все на телефоне долго —
+     тогда оставляем свёрнутым и показываем только цифры */
+  var WIDE=its.length>300, auto=(gs.length===1||!!raw)&&!WIDE;
+  body.innerHTML=gs.map(function(g){
+    var op=auto||OPEN[g.n],inner='';
+    if(op){
+      var bs=MODE?Object.keys(g.sub).map(function(k){return g.sub[k];}).sort(function(x,y){return y.t-x.t;}):[];
+      if(!MODE||bs.length<2){     /* делить не на что — сразу товары */
+        inner=g.its.map(function(i){return itemHTML(i,raw);}).join('');
+      }else{
+        /* в носках сезона нет ни у кого — тогда «Сезон не указан ·» в каждой строке это шум,
+           убираем целиком. Как только в группе есть хоть одна зимняя позиция — сезон пишем всем */
+        var hasSea=bs.some(function(b){return b.se!==NOS;}),
+            hasGen=bs.some(function(b){return b.ge!==NOG;});
+        inner=bs.map(function(b){
+          var key=g.n+'|'+b.n,so=!!OPENS[key]||(!!raw&&!WIDE),lp=[];
+          if(MODE.indexOf('s')>=0&&hasSea)lp.push(b.se);
+          if(MODE.indexOf('g')>=0&&hasGen)lp.push(b.ge);
+          var lbl=lp.join(' · ')||b.n;
+          return '<div class="sub2'+(so?' on':'')+'"><div class="sh" onclick="tgs(&quot;'+encodeURIComponent(key)+'&quot;)">'+
+            '<span class="ar">▸</span><span class="nm">'+esc(lbl)+
+            '<span>'+nf(b.arts)+' артик. · Дом '+nf(b.d)+' · Дракон '+nf(b.k)+' · Подарки '+nf(b.g)+'</span></span>'+
+            '<span class="qty">'+nf(b.t)+'</span></div>'+
+            '<div class="items">'+(so?b.its.map(function(i){return itemHTML(i,raw);}).join(''):'')+'</div></div>';
+        }).join('');
+      }
+    }
+    return '<div class="grp'+(op?' on':'')+'"><div class="gh" onclick="tgg(&quot;'+encodeURIComponent(g.n)+'&quot;)">'+
+      '<span class="ar">▸</span><span class="nm">'+hi(g.n,raw)+
+      '<span>'+nf(g.arts)+' артик. · Дом '+nf(g.d)+' · Дракон '+nf(g.k)+' · Подарки '+nf(g.g)+'</span></span>'+
+      '<span class="qty">'+nf(g.t)+'</span></div>'+
+      '<div class="inner">'+inner+'</div></div>';
+  }).join('')||'<div class="empty">У «'+esc(s.n)+'» ничего не нашлось'+(raw?' по «'+esc(raw)+'»':' с такими фильтрами')+'.</div>';
+}
+function tgg(n){n=decodeURIComponent(n);OPEN[n]=!OPEN[n];detailView();}
+function tgs(k){k=decodeURIComponent(k);OPENS[k]=!OPENS[k];detailView();}
+function tgi(a){a=decodeURIComponent(a);SEEN[a]=!SEEN[a];detailView();}
+function setFG(v){FG=decodeURIComponent(v||'');detailView();}
+function setFS(v){FS=decodeURIComponent(v||'');detailView();}
+function setMode(m){MODE=m;OPENS={};detailView();}
+function go(n){location.hash='#'+n;}
+
+function render(){
+  var h=decodeURIComponent((location.hash||'').replace(/^#/,''));
+  var s=h?BYNAME[h]:null;
+  if(s!==CUR){q.value='';OPEN={};OPENS={};SEEN={};FG='';FS='';}
+  CUR=s;
+  if(s){ttl.textContent='🧵 '+s.n;q.placeholder='Товар или артикул внутри поставщика';detailView();}
+  else{ttl.textContent='🧵 По поставщику';q.placeholder='Поставщик — напр. Гуля';
+       totEl.style.display='none';moneyEl.style.display='none';filtEl.innerHTML='';listView();}
+}
+document.getElementById('back').onclick=function(){
+  if(CUR){location.hash='';}
+  else if(history.length>1&&document.referrer.indexOf(location.host)>=0){history.back();}
+  else{location.href='index.html';}
+};
+window.addEventListener('hashchange',render);
+var tmr;q.addEventListener('input',function(){clearTimeout(tmr);tmr=setTimeout(function(){CUR?detailView():listView();},110);});
+
+fetch('stock.json?v='+Date.now()).then(function(r){return r.json();}).then(function(db){
+  DB=db;build(db);
+  var g=/^(\d{2})\.(\d{2})\.(\d{4}) (\d{2}):(\d{2})$/.exec(db.gen||''),old=0;
+  if(g)old=(Date.now()-new Date(+g[3],+g[2]-1,+g[1],+g[4],+g[5]))/36e5;
+  var ge=document.getElementById('gen');
+  ge.textContent='🕒 '+db.gen+(old>12?' · ⚠ устарело':'');
+  if(old>12)ge.className='sub stale';
+  document.getElementById('foot').textContent='Остаток и цена из 1С на '+db.gen+' · Дом одежды · Дракон · Подарки. Пол и сезон читаются из названия товара: если байер их не написал, позиция попадает в «не указан». Освежается каждый час (08:00–22:00).';
+  render();
+}).catch(function(){document.getElementById('gen').textContent='ошибка загрузки данных';
+  body.innerHTML='<div class="empty">Не удалось загрузить остатки. Проверьте связь и обновите страницу.</div>';});
+</script></body></html>
